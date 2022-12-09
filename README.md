@@ -5,6 +5,10 @@
 - cockpit
 - ntopng
 
+```sh
+apt install cockpit
+```
+
 ## Project Setup
 
 ```sh
