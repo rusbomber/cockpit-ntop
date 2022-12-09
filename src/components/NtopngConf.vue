@@ -23,6 +23,12 @@
 		</div>
 
 		<div class="form-group">
+			<h5>Local Networks</h5>
+			<TagInput v-model="localNetworks" @change="onConfigChange()" ref="localNetworksInput" />
+			<small class="form-text text-muted"></small>
+		</div>
+
+		<div class="form-group">
 			<h5>DNS Mode</h5>
 			<Multiselect v-model="dnsMode" mode="single" ref="dnsModeMultiselect" @change="onConfigChange()" :options="[
 			{ value: '0', label: 'Decode DNS responses and resolve local numeric IPs only' },
@@ -72,6 +78,7 @@ import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
+import TagInput from "./TagInput.vue";
 import { getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
 
 /* 
@@ -95,11 +102,13 @@ const ntopngSwitch = ref(false)
 
 /* Empty configuration */
 const selectedInterfaces = ref([]);
+const localNetworks = ref([])
 const dnsMode = ref("0");
 
 /* Form data */
 const interfaceMultiselect = ref(null);
 const dnsModeMultiselect = ref(null);
+const localNetworksInput = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
@@ -136,7 +145,8 @@ async function loadConfiguration() {
 		configuration = [ 
 			{ name: '-i', value: 'eno1' }, 
 			{ name: '-n', value: '2' }, 
-			{ name: '-w', value: '3000' }, 
+			{ name: '-w', value: '3000' },
+			{ name: '-m', value: '192.168.1.0/24,192.168.2.0/24'},
 			{ name: '--community' } 
 		]
 	} else { 
@@ -158,6 +168,15 @@ async function loadConfiguration() {
 				if (option.value)
 					dnsModeMultiselect.value.select(option.value);
 				break;
+			case '-m':
+			case '--local-networks':
+				if (option.value) {
+					const networks = option.value.split(',');
+					networks.forEach(function (network) {
+						localNetworksInput.value.addTag(network);
+					});
+				}
+				break;
 			default:
 				advancedSettingsTextarea.value.value += option.name;
 				if (option.value)
@@ -178,7 +197,10 @@ function computeConfiguration() {
 		form_configuration.push({ name: '-i', value: if_name });
 	});
 
-	form_configuration.push({ name: '-n', value: dnsMode.value });
+	if (localNetworks.value.length > 0) {
+		form_configuration.push({ name: '-m', value: localNetworks.value.join(',') });
+		console.log(localNetworks.value.join(','));
+	}
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
@@ -222,7 +244,11 @@ onBeforeMount(async () => {
 
 /* On service switch event: toggle service status */
 function onServiceSwitchChange() {
-	toggleService(serviceName, ntopngSwitch.value);
+	if (stubMode) {
+		console.log("Switching " + serviceName + " " + ntopngSwitch.value);
+	} else {
+		toggleService(serviceName, ntopngSwitch.value);
+	}
 
 	/* This is not required as there is a setInterval
 	setTimeout(() => {

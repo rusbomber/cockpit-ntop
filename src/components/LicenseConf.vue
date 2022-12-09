@@ -75,6 +75,9 @@ const appEdition = ref("")
 const appLicense = ref("")
 const appMaintenance = ref("")
 
+/* Development*/
+const stubMode = false;
+
 /* 
  * Component parameters
  * Types: String, Object, Number, Boolean, Array
@@ -130,8 +133,12 @@ async function saveLicense() {
 
 /* On mount: read current license */
 onMounted(async () => {
-	await readLicense();
-	await readSystemInformation();
+	if (stubMode) {
+
+	} else {
+		await readLicense();
+		await readSystemInformation();
+	}
 });
 
 </script>
