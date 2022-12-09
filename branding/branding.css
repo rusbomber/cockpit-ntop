@@ -1,0 +1,47 @@
+body.login-pf {
+    background: url("bg-plain.jpg") no-repeat 50% 0;
+    background-size: cover;
+    background-color: #101010;
+}
+
+#badge {
+    width: 220px;
+    height: 80px;
+    background-image: url("logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#brand {
+    font-size: 18pt;
+    text-transform: uppercase;
+}
+
+#brand:before {
+    /* Available consts: ${NAME} ${PRETTY_NAME} */
+    content: "nBox 22.04";
+}
+
+#topnav {
+    background: #666;
+}
+
+#current-username {
+    color: #ccc;
+}
+
+.at {
+    display: none;
+}
+
+.hostname {
+    color: orange;
+}
+
+#index-brand {
+    content: "nBox";
+}
+
+#index-brand:before {
+    content: "nBox";
+}
