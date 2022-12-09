@@ -1,0 +1,10 @@
+{
+    "version": 0,
+
+    "menu": {
+        "ntopng": {
+            "label": "Ntopng",
+            "path": "index.html"
+        }
+    }
+}
