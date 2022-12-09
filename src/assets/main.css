@@ -1,0 +1,81 @@
+@import './base.css';
+
+body {
+  background: rgb(229, 229, 229);
+}
+
+.card {
+  border-radius: 0;
+  box-shadow: 0px 3px 10px 0 #aaa;
+}
+
+.card-header {
+  padding: 1.2rem;
+}
+
+.card-title {
+  float: left;
+  margin: 0;
+}
+
+.card-title h3 {
+  margin: 0;
+}
+
+.service-switch {
+  float: right;
+  transform: scale(1.2);
+}
+
+.configuration {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.navbar {
+  padding-left: 2rem; 
+  padding-right: 2rem; 
+}
+
+.nav-item {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.nav-item.active {
+  color: black;
+  border-width: 0px 0px 2px 0px;
+  border-style: solid;
+  border-color: #ff7500; /* orange */
+}
+
+.nav-item.active .nav-link {
+  color: black;
+}
+
+.product-name {
+  color: #ff7500; /* orange */
+  font-weight: bold;
+  text-shadow: 0px 1px #aaa;
+  padding-right: 1rem; 
+}
+
+.form-group {
+  padding-top: 1rem;
+}
+
+.svg-inline--fa {
+  width: 1rem;
+}
+
+.toggle-red {
+  --toggle-bg-on: #EC7063;
+  --toggle-border-on: #EC7063;
+}
+
+#app {
+  margin: 0 auto;
+  font-weight: normal;
+}
+
