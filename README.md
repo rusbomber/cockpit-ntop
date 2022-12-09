@@ -1,4 +1,9 @@
-# nbox
+# Cockpit-based nBox UI
+
+## Prerequisites
+
+- cockpit
+- ntopng
 
 ## Project Setup
 
