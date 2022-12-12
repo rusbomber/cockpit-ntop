@@ -8,6 +8,7 @@
 			<h3>{{ name }} Instance</h3>
 		</div>
 		<div class="service-switch">
+			<button class="btn btn-default" title="Open ntopng" @click="openNtopng()" :disabled="!(ntopngEnabled && ntopngActive)"><font-awesome-icon icon="fa-solid fa-desktop" /></button>
 			<Toggle v-model="ntopngSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': ntopngEnabled && !ntopngActive }" />
 		</div>
 	</div>
@@ -41,8 +42,8 @@
 		</div>
 
 		<div class="form-group">
-			<a class="btn" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
-			<div class="form-floating collapse" id="collapseExample">
+			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
+			<div class="form-floating collapse" id="collapseAdvancedSettings">
 				<textarea class="form-control" placeholder="Advanced settings" id="advancedSettingsTextareaId" style="height: 100px" ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
 				<label for="advancedSettingsTextareaId">key = value</label>
 			</div>
@@ -259,6 +260,12 @@ function onServiceSwitchChange() {
 
 function onConfigChange() {
 	configChanged.value = true;
+}
+
+function openNtopng() {
+	const hostname = location.hostname;
+	const url = 'http://' + hostname + ':3000';
+	window.open(url, '_blank').focus();
 }
 
 /* On mount: load configuration from file */

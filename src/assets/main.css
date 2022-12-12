@@ -27,6 +27,10 @@ body {
   transform: scale(1.2);
 }
 
+.btn.btn-default:disabled {
+  border-color: transparent;
+}
+
 .configuration {
   max-width: 1280px;
   margin: 0 auto;
