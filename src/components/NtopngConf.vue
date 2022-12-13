@@ -20,13 +20,13 @@
 		<div class="form-group">
 			<h5>Interfaces</h5>
 			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="tags" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
-			<small class="form-text text-muted"></small>
+			<small class="form-text text-muted">Network interfaces used for packet capture.</small>
 		</div>
 
 		<div class="form-group">
 			<h5>Local Networks</h5>
 			<TagInput v-model="localNetworks" @change="onConfigChange()" ref="localNetworksInput" />
-			<small class="form-text text-muted"></small>
+			<small class="form-text text-muted">Local networks in CIDR format (e.g. 192.168.2.0/24) used to identify local hosts.</small>
 		</div>
 
 		<div class="form-group">
@@ -38,8 +38,22 @@
 			{ value: '3', label: 'Do not decode DNS/MDNS/HTTP/TLS responses and do not resolve numeric IPs (all hosts)' },
 			{ value: '4', label: 'Do not decode DNS/MDNS/HTTP/TLS responses and do not resolve numeric IPs (localhost only)' },
 		]" />
-			<small class="form-text text-muted"></small>
+			<small class="form-text text-muted">Address resolution mode used for displaying host names.</small>
 		</div>
+
+		<div class="form-group">
+			<h5>Flow Collection</h5>
+			<Toggle v-model="flowCollectionSwitch" />
+		</div>
+		
+		<div class="form-floating collapse" :class="{ 'show': flowCollectionSwitch }">
+			<div class="form-group">
+				<h5>Collection Endpoint</h5>
+				<input type="text" class="form-control" ref="flowCollectionEndpoint" />
+				<small class="form-text text-muted">Flow collection endpoint (e.g. tcp://127.0.0.1:5556) to receive flows from nProbe.</small>
+			</div>
+		</div>
+		
 
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
@@ -110,9 +124,12 @@ const dnsMode = ref("0");
 const interfaceMultiselect = ref(null);
 const dnsModeMultiselect = ref(null);
 const localNetworksInput = ref(null)
+const flowCollectionSwitch = ref(false)
+const flowCollectionEndpoint = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
+const collapseEndpoint = ref(null)
 
 /* Development*/
 const stubMode = false;
@@ -138,6 +155,13 @@ async function updateServiceSwitch() {
 
 }
 
+function appendAdvancedSettings(name, value) {
+	advancedSettingsTextarea.value.value += name;
+	if (value)
+		advancedSettingsTextarea.value.value += '=' + value;
+	advancedSettingsTextarea.value.value += '\n';
+}
+
 async function loadConfiguration() {
 	let configuration = []
 
@@ -159,10 +183,21 @@ async function loadConfiguration() {
 		switch (option.name) {
 			case '-i':
 			case '--interface':
-				if (option.value)
-					selectedInterfaces.value.push(option.value);
-					/* Note that the below is not working in Cockpit: 
-					 * interfaceMultiselect.value.select(option.value); */
+				if (option.value) {
+					if (option.value.startsWith("tcp://") ||
+					    option.value.startsWith("kafka://")) {
+						if (flowCollectionEndpoint.value.value) {
+							appendAdvancedSettings(option.name, option.value);
+						} else {
+							flowCollectionSwitch.value = true;
+							flowCollectionEndpoint.value.value = option.value;
+						}
+					} else {
+						selectedInterfaces.value.push(option.value);
+						/* Note that the below is not working in Cockpit: 
+						 * interfaceMultiselect.value.select(option.value); */
+					}
+				}
 				break;
 			case '-n':
 			case '--dns-mode':
@@ -179,10 +214,7 @@ async function loadConfiguration() {
 				}
 				break;
 			default:
-				advancedSettingsTextarea.value.value += option.name;
-				if (option.value)
-					advancedSettingsTextarea.value.value += '=' + option.value;
-				advancedSettingsTextarea.value.value += '\n';
+				appendAdvancedSettings(option.name, advancedSettingsTextarea.value.value);
 				break;
 		}
 	});
@@ -201,6 +233,10 @@ function computeConfiguration() {
 	if (localNetworks.value.length > 0) {
 		form_configuration.push({ name: '-m', value: localNetworks.value.join(',') });
 		console.log(localNetworks.value.join(','));
+	}
+
+	if (flowCollectionSwitch.value && flowCollectionEndpoint.value) {
+		form_configuration.push({ name: '-i', value: flowCollectionEndpoint.value.value });
 	}
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
@@ -262,12 +298,6 @@ function onConfigChange() {
 	configChanged.value = true;
 }
 
-function openNtopng() {
-	const hostname = location.hostname;
-	const url = 'http://' + hostname + ':3000';
-	window.open(url, '_blank').focus();
-}
-
 /* On mount: load configuration from file */
 onMounted(async () => {
 	await loadConfiguration();
@@ -276,6 +306,12 @@ onMounted(async () => {
 		updateServiceSwitch();
 	}, 2000)
 });
+
+function openNtopng() {
+	const hostname = location.hostname;
+	const url = 'http://' + hostname + ':3000';
+	window.open(url, '_blank').focus();
+}
 
 </script>
 
