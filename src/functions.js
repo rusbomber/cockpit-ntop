@@ -146,6 +146,19 @@ export function serializeConfiguration(configuration) {
 	return content;
 }
 
+export async function fileExists(path) {
+	let exists = false;
+
+	var proc = await cockpit.spawn(["stat", path])
+	.then(function () { 
+		exists = true;
+	})
+	.catch(function (exception) {
+	});
+
+	return exists;
+}
+
 export async function readFile(path) {
 	const file = cockpit.file(path, { superuser: 'try' });
 
