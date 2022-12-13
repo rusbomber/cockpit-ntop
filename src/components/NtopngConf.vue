@@ -26,7 +26,7 @@
 		<div class="form-group">
 			<h5>Local Networks</h5>
 			<TagInput v-model="localNetworks" @change="onConfigChange()" ref="localNetworksInput" />
-			<small class="form-text text-muted">Local networks in CIDR format (e.g. 192.168.2.0/24) used to identify local hosts.</small>
+			<small class="form-text text-muted">Local networks in CIDR format (e.g. 192.168.1.0/24) used to identify local hosts.</small>
 		</div>
 
 		<div class="form-group">
@@ -43,13 +43,13 @@
 
 		<div class="form-group">
 			<h5>Flow Collection</h5>
-			<Toggle v-model="flowCollectionSwitch" />
+			<Toggle v-model="flowCollectionSwitch" @change="onConfigChange()" />
 		</div>
 		
 		<div class="form-floating collapse" :class="{ 'show': flowCollectionSwitch }">
 			<div class="form-group">
 				<h5>Collection Endpoint</h5>
-				<input type="text" class="form-control" ref="flowCollectionEndpoint" />
+				<input type="text" class="form-control" ref="flowCollectionEndpoint" @change="onConfigChange()" />
 				<small class="form-text text-muted">Flow collection endpoint (e.g. tcp://127.0.0.1:5556) to receive flows from nProbe.</small>
 			</div>
 		</div>
@@ -136,7 +136,6 @@ const stubMode = false;
 
 /* Data */
 const interfacesList = ref([]);
-let persistentConfiguration = [];
 
 /* Update service switch state */
 async function updateServiceSwitch() {
@@ -214,12 +213,11 @@ async function loadConfiguration() {
 				}
 				break;
 			default:
-				appendAdvancedSettings(option.name, advancedSettingsTextarea.value.value);
+				appendAdvancedSettings(option.name, option.value);
 				break;
 		}
 	});
 
-	persistentConfiguration = configuration;
 	configChanged.value = false;
 }
 
@@ -255,7 +253,6 @@ async function saveConfiguration() {
 		await writeConfigurationFile(serviceName, configuration);
 	}
 
-	persistentConfiguration = configuration;
 	configChanged.value = false;
 
 	if (ntopngEnabled.value) {
