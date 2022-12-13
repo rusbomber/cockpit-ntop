@@ -218,7 +218,8 @@ async function loadConfiguration() {
 		}
 	});
 
-	configChanged.value = false;
+	/* Update configChanged with timeout to handle async updates triggering change event */
+	setTimeout(() => (configChanged.value = false), 100);
 }
 
 function computeConfiguration() {
@@ -253,7 +254,8 @@ async function saveConfiguration() {
 		await writeConfigurationFile(serviceName, configuration);
 	}
 
-	configChanged.value = false;
+	/* Update configChanged with timeout to handle async updates triggering change event */
+	setTimeout(() => (configChanged.value = false), 100);
 
 	if (ntopngEnabled.value) {
 		onApplyModal.value.show();
@@ -291,7 +293,9 @@ function onServiceSwitchChange() {
 	*/
 }
 
-function onConfigChange() {
+function onConfigChange(e) {
+	/* Use @change="event => onConfigChange(event)" to pass the event */
+	//if (e) console.log(e);
 	configChanged.value = true;
 }
 
