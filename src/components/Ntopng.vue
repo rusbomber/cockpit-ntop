@@ -46,7 +46,14 @@ const instanceName = ref("Main")
 const productName = ref("ntopng")
 const tab = ref("configuration")
 
+/* Debug mode */
+const stubMode = true;
+
 onBeforeMount(async () => {
-	installed.value = await fileExists("/usr/bin/ntopng");
+	if (stubMode) {
+		installed.value = true;
+	} else {
+		installed.value = await fileExists("/usr/bin/ntopng");
+	}
 });
 </script>

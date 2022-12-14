@@ -49,7 +49,7 @@
 		<div class="form-floating collapse" :class="{ 'show': flowCollectionSwitch }">
 			<div class="form-group">
 				<h5>Collection Endpoint</h5>
-				<input type="text" class="form-control" ref="flowCollectionEndpoint" @change="onConfigChange()" />
+				<input type="text" class="form-control" :class="{ 'border border-danger': invalidFlowCollectionEndpoint }" ref="flowCollectionEndpoint" @change="onConfigChange()" />
 				<small class="form-text text-muted">Flow collection endpoint (e.g. tcp://127.0.0.1:5556) to receive flows from nProbe.</small>
 			</div>
 		</div>
@@ -67,7 +67,7 @@
 
 	<div class="card-footer">
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!configChanged">Save Configuration</button>
+			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!configChanged || !validationOk">Save Configuration</button>
 		</div>
 	</div>
 </div>
@@ -130,6 +130,9 @@ const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
 const collapseEndpoint = ref(null)
+
+const validationOk = ref(true);
+const invalidFlowCollectionEndpoint = ref(false)
 
 /* Development*/
 const stubMode = false;
@@ -293,9 +296,39 @@ function onServiceSwitchChange() {
 	*/
 }
 
+function isEndpoint(str) {
+	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or kafka://
+		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
+		'((\\d{1,3}\\.){3}\\d{1,3})|'+ // or IP (v4) address
+		'(\\*))'+ // '*'
+		'(\\:\\d+)?'+ // port
+		'(c)?' + // 'c'
+		'$','i');
+	return pattern.test(str);
+}
+
 function onConfigChange(e) {
 	/* Use @change="event => onConfigChange(event)" to pass the event */
-	//if (e) console.log(e);
+	/* if (e) { 
+	 * 	console.log(e);
+	 * 	console.log(e.target.value);
+	 * } */
+
+	/* Reset */
+	invalidFlowCollectionEndpoint.value = false;
+
+	/* Validate */
+	if (flowCollectionSwitch.value) {
+		const endpoint = flowCollectionEndpoint.value.value;
+		if (endpoint && !isEndpoint(endpoint)) {
+			invalidFlowCollectionEndpoint.value = true;
+		}
+	}
+	
+	/* Update global validation flag */
+	validationOk.value = !invalidFlowCollectionEndpoint.value;
+
+	/* Set config changed */
 	configChanged.value = true;
 }
 
