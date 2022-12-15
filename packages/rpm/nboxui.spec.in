@@ -37,9 +37,7 @@ fi
 
 %build
 PATH=/usr/bin:/bin:/usr/sbin:/sbin
-
-CFLAGS="$RPM_OPT_FLAGS" ./configure
-# make versions
+#make build
 
 # Installation may be a matter of running an install make target or you
 # may need to manually install files with the install command.
@@ -49,7 +47,6 @@ if [ -d $RPM_BUILD_ROOT ]; then
 	\rm -rf $RPM_BUILD_ROOT
 fi
 mkdir -p $RPM_BUILD_ROOT/usr/share/cockpit/ntopng
-cd ../../; make build
 cp -r ../../plugins/ntopng/* $RPM_BUILD_ROOT/usr/share/cockpit/ntopng/
 cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/ntopng/
 
@@ -91,6 +88,6 @@ esac
 %defattr(-, root, root)
 
 %changelog
-* @DATE@ Alfredo Cardigliano <cardigliano@ntop.org> @PACKAGE_VERSION@
+* @CHANGELOG_DATE@ Alfredo Cardigliano <cardigliano@ntop.org> @PACKAGE_VERSION@
 - Last release
 

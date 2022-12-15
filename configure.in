@@ -6,8 +6,10 @@ AC_CONFIG_FILES(Makefile)
 PACKAGE_VERSION=3.99
 
 MACHINE=`uname -m`
+PLATFORM=`uname -p`
 TODAY=`date +%y%m%d`
 DATE=`date -R`
+CHANGELOG_DATE=`date "+%a %b %d %Y"`
 
 if test -d .git; then
   GIT_REVISION=`git log --pretty=oneline | wc -l`
@@ -27,6 +29,7 @@ fi
 EXTRA_DEPS=""
 
 AC_SUBST(DATE)
+AC_SUBST(CHANGELOG_DATE)
 AC_SUBST(TODAY)
 AC_SUBST(MACHINE)
 AC_SUBST(PACKAGE_VERSION)
