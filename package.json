@@ -1,6 +1,6 @@
 {
-  "name": "nbox",
-  "version": "0.0.1",
+  "name": "nboxui",
+  "version": "3.99",
   "private": true,
   "scripts": {
     "dev": "vite",

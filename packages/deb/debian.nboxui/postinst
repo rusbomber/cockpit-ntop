@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+case "$1" in
+    configure)
+	# continue below
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+	exit 0
+    ;;
+
+    *)
+	echo "postinst called with unknown argument \`$1'" >&2
+	exit 0
+    ;;
+esac
+
+umask 022
+
+if ! grep -q nbox /etc/group; then
+    echo 'Creating nbox group'
+    /usr/sbin/groupadd -r nbox
+fi
+
+if ! /usr/bin/id -u nbox > /dev/null 2>&1; then
+    echo "Creating nbox user..."
+    /usr/sbin/useradd -M -N -g nbox -r nbox
+fi
+
+exit 0

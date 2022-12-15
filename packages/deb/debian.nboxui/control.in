@@ -1,0 +1,19 @@
+Source: nboxui
+Section: free
+Priority: optional
+Maintainer: packager@ntop.org
+Standards-Version: @PACKAGE_VERSION@
+Build-Depends:
+Build-Conflicts:
+
+Package: nboxui
+Architecture: all
+Depends: cockpit, @EXTRA_DEPS@
+Recommends:
+Suggests:
+Pre-Depends:
+Conflicts:
+Provides:
+Replaces: nboxui
+Description: ntop nBox UI.
+

@@ -1,0 +1,20 @@
+all: clean build
+
+build:
+	\/bin/rm -rf nboxui-@PACKAGE_VERSION@
+	mkdir -p nboxui-@PACKAGE_VERSION@/src nboxui-@PACKAGE_VERSION@/include
+	#cp -L src/*.cpp nboxui-@PACKAGE_VERSION@/src
+	mkdir -p nboxui-@PACKAGE_VERSION@/packages
+	cp *.spec.in nboxui-@PACKAGE_VERSION@/packages
+	mkdir -p $(HOME)/rpmbuild/SOURCES
+	tar cvfz $(HOME)/rpmbuild/SOURCES/nboxui-@PACKAGE_VERSION@.tgz nboxui-@PACKAGE_VERSION@
+	rm -f $(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(NSCRUB_PKG)
+	rpmbuild -bb nboxui.spec --define "buildnumber $(REVISION)"
+	@RPM_SIGN_CMD@ $(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(NSCRUB_PKG)
+	@echo ""
+	@echo "Package contents:"
+	@rpm -qpl $(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(NSCRUB_PKG)
+	@echo "The package is now available in $(HOME)/rpmbuild/RPMS/$(PLATFORM)/$(NSCRUB_PKG)"
+
+clean:
+	-rm -f *.rpm

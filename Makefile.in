@@ -1,0 +1,22 @@
+
+build:
+	npm install
+	npm run build
+
+install: build
+	rm -rf /usr/share/cockpit/ntopng
+	mkdir /usr/share/cockpit/ntopng
+	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
+	cp -r plugins/ntopng/* /usr/share/cockpit/ntopng/ 
+	cp -r dist/* /usr/share/cockpit/ntopng/
+
+build-deb:
+	cd packages/deb/; make
+
+build-rpm:
+	cd packages/rpm/; make
+
+clean:
+	-rm -rf automate.cache
+	-rm -rf node_modules
+	-rm -rf dist

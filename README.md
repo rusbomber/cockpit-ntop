@@ -27,7 +27,7 @@ npm run dev -- --host
 npm run build
 ```
 
-### Install nBox Plugins in Cockpit
+### Install nBox UI Plugins in Cockpit
 
 ```sh
 sudo ./install.sh

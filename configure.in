@@ -1,0 +1,43 @@
+AC_INIT([nboxui], 1.0)
+
+AC_PROG_CC
+AC_CONFIG_FILES(Makefile)
+
+PACKAGE_VERSION=3.99
+
+MACHINE=`uname -m`
+TODAY=`date +%y%m%d`
+DATE=`date -R`
+
+if test -d .git; then
+  GIT_REVISION=`git log --pretty=oneline | wc -l`
+fi
+
+RPM_SIGN_CMD="rpm --addsign"
+if test -f "/etc/centos-release"; then
+  CENTOS_RELEASE=`cat /etc/centos-release | cut -d ' ' -f 3|cut -d '.' -f 1`
+  if test $CENTOS_RELEASE = "release"; then
+    CENTOS_RELEASE=`cat /etc/centos-release | cut -d ' ' -f 4|cut -d '.' -f 1`
+  fi
+  if test "$CENTOS_RELEASE" -ne 8; then
+    RPM_SIGN_CMD="./packages/rpm/rpm-sign.exp"
+  fi
+fi
+
+EXTRA_DEPS=""
+
+AC_SUBST(DATE)
+AC_SUBST(TODAY)
+AC_SUBST(MACHINE)
+AC_SUBST(PACKAGE_VERSION)
+AC_SUBST(GIT_REVISION)
+AC_SUBST(EXTRA_DEPS)
+AC_SUBST(RPM_SIGN_CMD)
+
+AC_CONFIG_FILES(packages/deb/Makefile)
+AC_CONFIG_FILES(packages/deb/debian.nboxui/changelog)
+AC_CONFIG_FILES(packages/deb/debian.nboxui/files)
+AC_CONFIG_FILES(packages/deb/debian.nboxui/control)
+AC_CONFIG_FILES(packages/rpm/Makefile)
+AC_CONFIG_FILES(packages/rpm/nboxui.spec)
+AC_OUTPUT

@@ -1,0 +1,4 @@
+nboxui (@PACKAGE_VERSION@-@GIT_REVISION@) table; urgency=high
+   * Last packaged version
+
+ -- Alfredo Cardigliano <cardigliano@ntop.org>  @DATE@

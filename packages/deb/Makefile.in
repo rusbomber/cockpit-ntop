@@ -1,0 +1,32 @@
+NBOXUI_HOME=$(PWD)/../..
+NBOXUI_BUILD=${NBOXUI_HOME}/packages/deb
+
+all: clean build
+
+changelog:
+	cd ../../; make changelog
+
+build:
+	if test -e "./debian"; then /bin/rm -f debian; fi
+	ln -s debian.nboxui debian
+	\rm -rf ./debian/nboxui
+	cd $(NBOXUI_HOME); make build
+	dpkg-buildpackage -rfakeroot -d -us -uc
+	dpkg-sig --sign builder -k D1EB60BE ../nboxui*deb
+	@\rm -f ../nboxui*dsc ../nboxui*.gz ../nboxui*changes
+	@/bin/mv ../nboxui*deb .
+	@echo
+	@echo "Package built."
+	@/bin/ls nboxui*deb
+	@echo "-------------------------------"
+	-dpkg --contents nboxui*deb
+	@echo "-------------------------------"
+
+distclean:
+	echo "dummy distclean"
+
+install:
+	echo "dummy install"
+
+clean:
+	-rm -rf *.deb
