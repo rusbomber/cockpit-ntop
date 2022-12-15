@@ -30,5 +30,5 @@ npm run build
 ### Install nBox UI Plugins in Cockpit
 
 ```sh
-sudo ./install.sh
+sudo make install
 ```
