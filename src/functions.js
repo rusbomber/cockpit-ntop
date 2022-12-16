@@ -1,6 +1,6 @@
 
 export function stubMode() {
-	return true;
+	return false;
 }
 
 export async function getNetworkInterfaces() {

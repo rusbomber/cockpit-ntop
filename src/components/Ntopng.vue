@@ -4,7 +4,7 @@
 <div v-if="installed">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<h3 class="product-name">{{ productName }}</h3>
+		<h3 class="product-name">{{ productLabel }}</h3>
 		<div class="collapse navbar-collapse">
 			<ul class="navbar-nav mr-auto">
 				<li class="nav-item" :class="{ 'active': tab == 'configuration'}">
@@ -22,7 +22,7 @@
 
 	<div class="configuration">
 		<NtopngConf :name="instanceName" v-show="tab == 'configuration'" />
-		<LicenseConf :name="productName" v-show="tab == 'license'" />
+		<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 	</div>
 
 </div>
@@ -43,7 +43,10 @@ import LicenseConf from './LicenseConf.vue'
 
 const installed = ref(false)
 const instanceName = ref("Main")
+
 const productName = ref("ntopng")
+const productLabel = ref("ntopng")
+
 const tab = ref("configuration")
 
 onBeforeMount(async () => {

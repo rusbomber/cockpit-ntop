@@ -2,7 +2,7 @@
 <template>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-	<h3 class="product-name">{{ productName }}</h3>
+	<h3 class="product-name">{{ productLabel }}</h3>
 	<div class="collapse navbar-collapse">
 		<ul class="navbar-nav mr-auto">
 			<li v-for="instance in instances" class="nav-item" :class="{ 'active': tab == instance.name}">
@@ -22,12 +22,12 @@
 	<template  v-for="instance in instances" >
 		<NprobeConf :name="instance.name" v-if="tab == instance.name" />
 	</template>
-	<LicenseConf :name="productName" v-show="tab == 'license'" />
+	<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 </div>
 
 <Modal ref="createInstanceModal">
 	<template v-slot:title>
-		Add {{ productName }} Instance
+		Add {{ productLabel }} Instance
 	</template>
 	<template v-slot:body>
 
@@ -45,7 +45,7 @@
 			<a class="wizard-link" href="#" @click="instanceMode = 'probe'; onConfigChange()">
 			<div class="card-body">
 				<div class="form-group wizard-form-group">
-					<h5>Probe</h5>
+					<h5><font-awesome-icon icon="fa-solid fa-ethernet" /> Probe</h5>
 					<small class="form-text text-muted">Capture traffic from a Network interface (mirror).</small>
 				</div>
 			</div>
@@ -56,7 +56,7 @@
 			<a class="wizard-link" href="#" @click="instanceMode = 'collector'; onConfigChange()">
 			<div class="card-body">	
 				<div class="form-group wizard-form-group">
-					<h5>Collector</h5>
+					<h5><font-awesome-icon icon="fa-solid fa-bezier-curve" /> Collector</h5>
 					<small class="form-text text-muted">Collect Netflow from a router or switch.</small>
 				</div>
 			</div>
@@ -67,7 +67,7 @@
 			<a class="wizard-link" href="#" @click="instanceMode = 'custom'; onConfigChange()">
 			<div class="card-body">	
 				<div class="form-group wizard-form-group">
-					<h5>Custom</h5>
+					<h5><font-awesome-icon icon="fa-solid fa-file-lines" /> Custom</h5>
 					<small class="form-text text-muted">Advanced - create a configuration from scratch.</small>
 				</div>
 			</div>
@@ -91,6 +91,7 @@ import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
 
 const productName = ref("nprobe")
+const productLabel = ref("nProbe")
 
 const tab = ref("")
 
@@ -108,14 +109,17 @@ const invalidInstanceName = ref(false)
 onBeforeMount(async () => {
 	if (stubMode()) {
 		instances.value.push({
-			name: 'nProbe1'
+			name: 'eno1'
 		});
 		instances.value.push({
-			name: 'nProbe2'
+			name: 'eno2'
 		});
-		tab.value = 'nProbe1';
 	} else {
 		//TODO
+	}
+
+	if (instances.value.length > 0) {
+		tab.value = instances.value[0].name;
 	}
 })
 

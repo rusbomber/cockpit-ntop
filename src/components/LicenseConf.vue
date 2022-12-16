@@ -5,7 +5,7 @@
 <div class="card w-100">
 	<div class="card-header">
 		<div class="card-title">
-			<h3>{{ name }} License</h3>
+			<h3>{{ label }} License</h3>
 		</div>
 	</div>
 
@@ -82,6 +82,10 @@ const appMaintenance = ref("")
  */
 const props = defineProps({
 	name: {
+		type: String,
+		required: true
+	},
+	label: {
 		type: String,
 		required: true
 	}
