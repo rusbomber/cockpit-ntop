@@ -5,6 +5,9 @@
 	<h3 class="product-name">{{ productName }}</h3>
 	<div class="collapse navbar-collapse">
 		<ul class="navbar-nav mr-auto">
+			<li v-for="instance in instances" class="nav-item" :class="{ 'active': tab == instance.name}">
+				<a class="nav-link" href="#" @click="tab = instance.name">{{ instance.name }}</a>
+			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="#" @click="createInstanceModal.show()">Add Instance</a>
 			</li>
@@ -16,6 +19,9 @@
 </nav>
 
 <div class="configuration">
+	<template  v-for="instance in instances" >
+		<NprobeConf :name="instance.name" v-if="tab == instance.name" />
+	</template>
 	<LicenseConf :name="productName" v-show="tab == 'license'" />
 </div>
 
@@ -79,19 +85,39 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { stubMode, fileExists } from "../functions";
+import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
 
 const productName = ref("nprobe")
-const tab = ref("configuration")
+
+const tab = ref("")
 
 const createInstanceModal = ref(null)
 
 const instanceMode = ref("")
 
+const instances = ref([])
+
 const instanceName = ref(null)
 const validationOk = ref(false);
 const invalidInstanceName = ref(false)
+
+/* Before mount: initialize configuration */
+onBeforeMount(async () => {
+	if (stubMode()) {
+		instances.value.push({
+			name: 'nProbe1'
+		});
+		instances.value.push({
+			name: 'nProbe2'
+		});
+		tab.value = 'nProbe1';
+	} else {
+		//TODO
+	}
+})
 
 function isValidInstanceName(str) {
 	var pattern = new RegExp('^([a-z\\d-]*[a-z\\d])*$','i');
@@ -119,6 +145,21 @@ function onConfigChange(e) {
 }
 
 function createInstance() {
+	/* Check if there is already an instance with the same name  */
+	const name = instanceName.value.value;
+	const found = instances.value.find(instance => instance.name == name);
+	if (found) {
+		window.alert(name + " already present");
+		return;
+	}
 
+	/* Add instance */
+	instances.value.push({
+		name: name	
+	});
+
+	/* Reset modal */
+	instanceName.value.value = '';
+	instanceMode.value = '';
 }
 </script>

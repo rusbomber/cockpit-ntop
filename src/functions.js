@@ -1,4 +1,8 @@
 
+export function stubMode() {
+	return true;
+}
+
 export async function getNetworkInterfaces() {
 	let json;
 

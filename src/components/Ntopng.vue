@@ -37,7 +37,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { fileExists } from "../functions";
+import { stubMode, fileExists } from "../functions";
 import NtopngConf from './NtopngConf.vue'
 import LicenseConf from './LicenseConf.vue'
 
@@ -46,11 +46,8 @@ const instanceName = ref("Main")
 const productName = ref("ntopng")
 const tab = ref("configuration")
 
-/* Debug mode */
-const stubMode = true;
-
 onBeforeMount(async () => {
-	if (stubMode) {
+	if (stubMode()) {
 		installed.value = true;
 	} else {
 		installed.value = await fileExists("/usr/bin/ntopng");

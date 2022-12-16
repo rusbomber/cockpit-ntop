@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { getLSBRelease, readFile, writeFile, getApplicationVersion } from "../functions";
+import { stubMode, getLSBRelease, readFile, writeFile, getApplicationVersion } from "../functions";
 import Modal from './Modal.vue'
 
 const licenseKeyTextArea = ref(null)
@@ -74,9 +74,6 @@ const appSystemID = ref("")
 const appEdition = ref("")
 const appLicense = ref("")
 const appMaintenance = ref("")
-
-/* Development*/
-const stubMode = false;
 
 /* 
  * Component parameters
@@ -133,7 +130,7 @@ async function saveLicense() {
 
 /* On mount: read current license */
 onMounted(async () => {
-	if (stubMode) {
+	if (stubMode()) {
 
 	} else {
 		await readLicense();

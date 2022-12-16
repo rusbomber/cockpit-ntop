@@ -94,7 +94,7 @@ import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
-import { getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
+import { stubMode, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
 
 /* 
  * Component parameters
@@ -134,16 +134,13 @@ const collapseEndpoint = ref(null)
 const validationOk = ref(true);
 const invalidFlowCollectionEndpoint = ref(false)
 
-/* Development*/
-const stubMode = false;
-
 /* Data */
 const interfacesList = ref([]);
 
 /* Update service switch state */
 async function updateServiceSwitch() {
 	/* Service status */
-	if (stubMode) {
+	if (stubMode()) {
 		ntopngActive.value = true;
 		ntopngEnabled.value = true;
 	} else {
@@ -168,7 +165,7 @@ async function loadConfiguration() {
 	let configuration = []
 
 	/* Read configuration file, if any */
-	if (stubMode) {
+	if (stubMode()) {
 		configuration = [ 
 			{ name: '-i', value: 'eno1' }, 
 			{ name: '-n', value: '2' }, 
@@ -251,7 +248,7 @@ function computeConfiguration() {
 async function saveConfiguration() {
 	const configuration = computeConfiguration()
 
-	if (stubMode) {
+	if (stubMode()) {
 		console.log(configuration);
 	} else {
 		await writeConfigurationFile(serviceName, configuration);
@@ -272,7 +269,7 @@ onBeforeMount(async () => {
 	updateServiceSwitch();
 
 	/* Read interfaces */
-	if (stubMode) {
+	if (stubMode()) {
 		interface_names = ['eno1', 'eno2'];
 	} else {
 		let interfaces = await getNetworkInterfaces();
@@ -283,7 +280,7 @@ onBeforeMount(async () => {
 
 /* On service switch event: toggle service status */
 function onServiceSwitchChange() {
-	if (stubMode) {
+	if (stubMode()) {
 		console.log("Switching " + serviceName + " " + ntopngSwitch.value);
 	} else {
 		toggleService(serviceName, ntopngSwitch.value);
