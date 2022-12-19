@@ -1,0 +1,10 @@
+{
+    "version": 0,
+
+    "menu": {
+        "nprobe": {
+            "label": "nProbe",
+            "path": "index.html"
+        }
+    }
+}

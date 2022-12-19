@@ -1,6 +1,8 @@
 
 <template>
 
+<div v-if="installed">
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 	<h3 class="product-name">{{ productLabel }}</h3>
 	<div class="collapse navbar-collapse">
@@ -81,6 +83,14 @@
 	</template>
 </Modal>
 
+</div>
+<div v-else>
+	<br />
+	<center>
+		<h5><b>nProbe</b> is not installed!</h5>
+	</center>
+</div>
+
 </template>
 
 <script setup>
@@ -92,6 +102,8 @@ import LicenseConf from './LicenseConf.vue'
 
 const productName = ref("nprobe")
 const productLabel = ref("nProbe")
+
+const installed = ref(false)
 
 const tab = ref("")
 
@@ -107,6 +119,12 @@ const invalidInstanceName = ref(false)
 
 /* Before mount: initialize configuration */
 onBeforeMount(async () => {
+	if (stubMode()) {
+		installed.value = true;
+	} else {
+		installed.value = await fileExists("/usr/bin/nprobe");
+	}
+
 	if (stubMode()) {
 		instances.value.push({
 			name: 'eno1'

@@ -10,23 +10,23 @@
 	</div>
 
 	<div class="card-body">
-		<div class="form-group">
+		<div class="form-group" v-show="appVersion != ''">
 			<h5>Version</h5>
 			<span>{{ appVersion }}</span>
 		</div>
-		<div class="form-group">
+		<div class="form-group" v-show="appEdition != ''">
 			<h5>Edition</h5>
 			<span>{{ appEdition }}</span>
 		</div>
-		<div class="form-group">
+		<div class="form-group" v-show="appSystemID != ''">
 			<h5>System ID</h5>
 			<span>{{ appSystemID }}</span>
 		</div>
-		<div class="form-group">
+		<div class="form-group" v-show="appLicense != ''">
 			<h5>License Status</h5>
 			<span :class="{'text-success': appLicense == 'Permanent'}"><b>{{ appLicense }}</b></span>
 		</div>
-		<div class="form-group">
+		<div class="form-group" v-show="appMaintenance != ''">
 			<h5>Maintenance Status</h5>
 			<span>{{ appMaintenance }}</span>
 		</div>
@@ -92,13 +92,13 @@ const props = defineProps({
 })
 
 async function readLicense() {
-	const license_key = await readFile("/etc/ntopng.license");
+	const license_key = await readFile("/etc/" + props.name + ".license");
 	licenseKeyTextArea.value.value = license_key
 }
 
 async function writeLicense() {
 	const license_key = licenseKeyTextArea.value.value
-	await writeFile("/etc/ntopng.license", license_key);
+	await writeFile("/etc/" + props.name + ".license", license_key);
 }
 
 async function readSystemInformation() {
@@ -112,12 +112,14 @@ async function readSystemInformation() {
 				appVersion.value = item.value;
 				break;
 			case 'System Id':
+			case 'SystemID':
 				appSystemID.value = item.value;
 				break;
 			case 'Edition':
 				appEdition.value = item.value;
 				break;
 			case 'License Type':
+			case 'License':
 				appLicense.value = item.value;
 				break;
 			case 'Maintenance':
