@@ -16,17 +16,21 @@
 
 		<!-- <p class="card-text">Sample text.</p>-->
 
-	<template v-if="mode == 'probe'">
-		<div class="form-group">
+		<div class="form-group" v-show="mode == 'probe'">
 			<h5>Interface</h5>
 			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
-	</template>
+
+		<div class="form-group" v-show="mode == 'collector'">
+			<h5>Collection Port</h5>
+			<input type="text" class="form-control" :class="{ 'border border-danger': false }" ref="flowCollectionPort" @change="onConfigChange()" />
+			<small class="form-text text-muted">Netflow/sFlow collection port.</small>
+		</div>
 
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
-			<div class="form-floating collapse" id="collapseAdvancedSettings">
+			<div class="form-floating" :class="{ collapse: mode != 'custom' }" id="collapseAdvancedSettings">
 				<textarea class="form-control" placeholder="Advanced settings" id="advancedSettingsTextareaId" style="height: 100px" ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
 				<label for="advancedSettingsTextareaId">key = value</label>
 			</div>
@@ -99,12 +103,10 @@ const dnsMode = ref("0");
 
 /* Form data */
 const interfaceMultiselect = ref(null);
-const dnsModeMultiselect = ref(null);
-const localNetworksInput = ref(null)
+const flowCollectionPort = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
-const collapseEndpoint = ref(null)
 
 const validationOk = ref(true);
 
@@ -147,17 +149,24 @@ async function loadConfiguration() {
 		configuration = await readConfigurationFile(serviceName, props.name);
 	}
 
+	if (!props.mode) {
+		props.mode = 'custom';
+	}
+
 	configuration.forEach(function (option) {
 		switch (option.name) {
 			case '-i':
 			case '--interface':
-				props.mode = 'probe'; //TODO read from metadata
-				if (props.mode == 'probe') {
-					if (option.value) {
-						selectedInterfaces.value.push(option.value);
-					}
-				} else {
-					appendAdvancedSettings(option.name, option.value);
+				if (option.value && option.value != 'none') {
+					props.mode = 'probe'; //TODO read from metadata
+					selectedInterfaces.value.push(option.value);
+				}
+				break;
+			case '-3':
+			case '--collector-port':
+				if (option.value && option.value != 'none') {
+					props.mode = 'collector'; //TODO read from metadata
+					flowCollectionPort.value.value = option.value;
 				}
 				break;
 			default:
@@ -173,8 +182,12 @@ async function loadConfiguration() {
 function computeConfiguration() {
 	let form_configuration = []
 
-	if (selectedInterfaces.value) {
+	if (selectedInterfaces.value && selectedInterfaces.value != '') {
 		form_configuration.push({ name: '-i', value: selectedInterfaces.value });
+	}
+
+	if (flowCollectionPort.value && flowCollectionPort.value != '') {
+		form_configuration.push({ name: '-3', value: flowCollectionPort.value.value });
 	}
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
