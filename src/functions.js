@@ -202,11 +202,17 @@ export async function writeFile(path, content) {
 }
 
 export async function readConfigurationFile(product, instance) {
+	let configuration = [];
+
 	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".conf";
 
 	const content = await readFile(path);
 
-	return parseConfiguration(content);
+	if (content) {
+		configuration = parseConfiguration(content);
+	}
+
+	return configuration;
 }
 
 export async function writeConfigurationFile(product, configuration, instance) {

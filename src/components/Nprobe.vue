@@ -16,13 +16,16 @@
 			<li class="nav-item" :class="{ 'active': tab == 'license'}">
 				<a class="nav-link" href="#" @click="tab = 'license'">License</a>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent">Logs</a>
+			</li>
 		</ul>
 	</div>
 </nav>
 
 <div class="configuration">	
 	<template  v-for="instance in instances" >
-		<NprobeConf :name="instance.name" :label="instance.label" v-if="tab == instance.name" />
+		<NprobeConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
 	</template>
 	<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 	<div v-if="tab != 'license' && instances.length == 0">
@@ -130,10 +133,16 @@ onBeforeMount(async () => {
 
 	if (stubMode()) {
 		instances.value.push({
-			name: 'eno1'
+			name: 'eno1',
+			mode: 'probe'
 		});
 		instances.value.push({
-			name: 'eno2'
+			name: 'Gw',
+			mode: 'collector'
+		});
+		instances.value.push({
+			name: 'Proxy',
+			mode: 'custom'
 		});
 	} else {
 		const names = await getConfigurationFileList(productName.value);
@@ -147,7 +156,8 @@ onBeforeMount(async () => {
 
 			instances.value.push({ 
 				name: name,
-				label: label
+				label: label,
+				mode: "custom" //TODO
 			});
 		});
 	}
@@ -193,7 +203,9 @@ function createInstance() {
 
 	/* Add instance */
 	instances.value.push({
-		name: name	
+		name: name,
+		label: name,
+		mode: instanceMode.value
 	});
 
 	tab.value = name;

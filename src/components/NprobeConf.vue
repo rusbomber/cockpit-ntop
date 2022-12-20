@@ -16,11 +16,13 @@
 
 		<!-- <p class="card-text">Sample text.</p>-->
 
+	<template v-if="mode == 'probe'">
 		<div class="form-group">
 			<h5>Interface</h5>
 			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
+	</template>
 
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
@@ -74,6 +76,10 @@ const props = defineProps({
 		required: true
 	},
 	label: {
+		type: String,
+		required: true
+	},
+	mode: {
 		type: String,
 		required: true
 	}
@@ -139,15 +145,19 @@ async function loadConfiguration() {
 		]
 	} else { 
 		configuration = await readConfigurationFile(serviceName, props.name);
-		console.log(configuration);
 	}
 
 	configuration.forEach(function (option) {
 		switch (option.name) {
 			case '-i':
 			case '--interface':
-				if (option.value) {
-					selectedInterfaces.value.push(option.value);
+				props.mode = 'probe'; //TODO read from metadata
+				if (props.mode == 'probe') {
+					if (option.value) {
+						selectedInterfaces.value.push(option.value);
+					}
+				} else {
+					appendAdvancedSettings(option.name, option.value);
 				}
 				break;
 			default:
@@ -163,9 +173,9 @@ async function loadConfiguration() {
 function computeConfiguration() {
 	let form_configuration = []
 
-	selectedInterfaces.value.forEach(function (if_name) {
-		form_configuration.push({ name: '-i', value: if_name });
-	});
+	if (selectedInterfaces.value) {
+		form_configuration.push({ name: '-i', value: selectedInterfaces.value });
+	}
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
@@ -180,7 +190,7 @@ async function saveConfiguration() {
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
-		await writeConfigurationFile(serviceName, configuration);
+		await writeConfigurationFile(serviceName, configuration, props.name);
 	}
 
 	/* Update configChanged with timeout to handle async updates triggering change event */
