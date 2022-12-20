@@ -112,8 +112,8 @@ async function updateServiceSwitch() {
 		nprobeActive.value = true;
 		nprobeEnabled.value = true;
 	} else {
-		nprobeActive.value = await isServiceActive(serviceName);
-		nprobeEnabled.value = await isServiceEnabled(serviceName);
+		nprobeActive.value = await isServiceActive(serviceName, props.name);
+		nprobeEnabled.value = await isServiceEnabled(serviceName, props.name);
 	}
 
 	if (nprobeEnabled.value) {

@@ -47,8 +47,12 @@ export async function getApplicationVersion(name) {
 		return [];
 }
 
-export async function isServiceActive(name) {
+export async function isServiceActive(name, instance) {
 	let active = false;
+
+	if (instance) {
+		name = name + "@" + instance;
+	}
 
 	var proc = await cockpit.spawn(["systemctl", "is-active", name])
 	.then(function (data) { 
@@ -63,8 +67,12 @@ export async function isServiceActive(name) {
 	return active;
 }
 
-export async function isServiceEnabled(name) {
+export async function isServiceEnabled(name, instance) {
 	let enabled = false;
+
+	if (instance) {
+		name = name + "@" + instance;
+	}
 
 	var proc = await cockpit.spawn(["systemctl", "is-enabled", name])
 	.then(function (data) { 
@@ -79,7 +87,11 @@ export async function isServiceEnabled(name) {
 	return enabled;
 }
 
-export async function toggleService(name, enable) {
+export async function toggleService(name, enable, instance) {
+
+	if (instance) {
+		name = name + "@" + instance;
+	}
 
 	/* console.log("Setting " + name + " " + (enable?"on":"off")); */
 
@@ -100,7 +112,12 @@ export async function toggleService(name, enable) {
 	});
 }
 
-export async function restartService(name) {
+export async function restartService(name, instance) {
+
+	if (instance) {
+		name = name + "@" + instance;
+	}
+
 	var proc2 = await cockpit.spawn(["systemctl", "-q", "restart", name], {superuser:"require"})
 	.then(function (data) { 
 	})
