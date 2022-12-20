@@ -8,7 +8,7 @@
 	<div class="collapse navbar-collapse">
 		<ul class="navbar-nav mr-auto">
 			<li v-for="instance in instances" class="nav-item" :class="{ 'active': tab == instance.name}">
-				<a class="nav-link" href="#" @click="tab = instance.name">{{ instance.name }}</a>
+				<a class="nav-link" href="#" @click="tab = instance.name">{{ instance.label }}</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="#" @click="createInstanceModal.show()">Add Instance</a>
@@ -20,11 +20,14 @@
 	</div>
 </nav>
 
-<div class="configuration">
+<div class="configuration">	
 	<template  v-for="instance in instances" >
-		<NprobeConf :name="instance.name" v-if="tab == instance.name" />
+		<NprobeConf :name="instance.name" :label="instance.label" v-if="tab == instance.name" />
 	</template>
 	<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
+	<div v-if="tab != 'license' && instances.length == 0">
+		<br /><center><span><b>nProbe</b> has not been configured yet, please create an instance.</span></center>
+	</div>
 </div>
 
 <Modal ref="createInstanceModal">
@@ -95,7 +98,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, fileExists } from "../functions";
+import { stubMode, fileExists, getConfigurationFileList } from "../functions";
 import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
@@ -122,7 +125,7 @@ onBeforeMount(async () => {
 	if (stubMode()) {
 		installed.value = true;
 	} else {
-		installed.value = await fileExists("/usr/bin/nprobe");
+		installed.value = await fileExists("/usr/bin/" + productName.value);
 	}
 
 	if (stubMode()) {
@@ -133,7 +136,20 @@ onBeforeMount(async () => {
 			name: 'eno2'
 		});
 	} else {
-		//TODO
+		const names = await getConfigurationFileList(productName.value);
+		names.sort();
+		names.forEach(function (name) {
+			let label = name;
+
+			if (name == '') {
+				label = "Default";
+			}
+
+			instances.value.push({ 
+				name: name,
+				label: label
+			});
+		});
 	}
 
 	if (instances.value.length > 0) {
@@ -179,6 +195,8 @@ function createInstance() {
 	instances.value.push({
 		name: name	
 	});
+
+	tab.value = name;
 
 	/* Reset modal */
 	instanceName.value.value = '';

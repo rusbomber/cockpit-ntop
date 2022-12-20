@@ -47,7 +47,6 @@ export async function getApplicationVersion(name) {
 		return [];
 }
 
-
 export async function isServiceActive(name) {
 	let active = false;
 
@@ -199,5 +198,34 @@ export async function writeConfigurationFile(product, configuration, instance) {
 	const content = serializeConfiguration(configuration);
 
 	await writeFile(path, content);
+}
+
+export async function getConfigurationFileList(product) {
+	let instances = [];
+
+	var proc = await cockpit.spawn(["ls", "/etc/" + product])
+	.then(function (data) { 
+		if (data) {
+			const files = data.split(/\r?\n/);
+			files.forEach(function(filename) {
+				let match_arr = filename.match("^nprobe(.*)\\.conf$");
+				if (match_arr && match_arr.length == 2) {
+					let instance_name = match_arr[1];
+					if (instance_name.startsWith('-')) {
+						instance_name = instance_name.substring(1);
+					}
+					instances.push(instance_name);
+				} else {
+					//console.log("Not a conf: " + filename);
+				}
+			});
+		}
+	})
+	.catch(function (exception) {
+		console.log("Unable to list " + name + " instances");
+		//console.log(exception);
+	});
+
+	return instances;
 }
 

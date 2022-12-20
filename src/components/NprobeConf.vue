@@ -5,7 +5,7 @@
 <div class="card w-100">
 	<div class="card-header">
 		<div class="card-title">
-			<h3>{{ name }} Instance</h3>
+			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
 			<Toggle v-model="nprobeSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': nprobeEnabled && !nprobeActive }" />
@@ -72,6 +72,10 @@ const props = defineProps({
 	name: {
 		type: String,
 		required: true
+	},
+	label: {
+		type: String,
+		required: true
 	}
 })
 
@@ -134,8 +138,8 @@ async function loadConfiguration() {
 			{ name: '-i', value: 'eno1' } 
 		]
 	} else { 
-		configuration = await readConfigurationFile(serviceName);
-		//console.log(configuration);
+		configuration = await readConfigurationFile(serviceName, props.name);
+		console.log(configuration);
 	}
 
 	configuration.forEach(function (option) {
@@ -195,7 +199,7 @@ onBeforeMount(async () => {
 
 	/* Read interfaces */
 	if (stubMode()) {
-		interface_names = ['eno1', 'eno2'];
+		interface_names = ['eno1'];
 	} else {
 		let interfaces = await getNetworkInterfaces();
 		interface_names = interfaces.map(info => info.name);
