@@ -4,8 +4,15 @@
 <div v-if="installed">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<h3 class="product-name">{{ productLabel }}</h3>
-		<div class="collapse navbar-collapse">
+		<a class="navbar-brand" href="#">
+			<h3 class="product-name">{{ productLabel }}</h3>
+		</a>
+
+		<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarMainMenu">
 			<ul class="navbar-nav mr-auto">
 				<li class="nav-item" :class="{ 'active': tab == 'configuration'}">
 					<a class="nav-link" href="#" @click="tab = 'configuration'">Setup</a>
