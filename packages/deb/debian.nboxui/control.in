@@ -8,7 +8,7 @@ Build-Conflicts:
 
 Package: nboxui
 Architecture: all
-Depends: cockpit, @EXTRA_DEPS@
+Depends: cockpit, rrdtool, @EXTRA_DEPS@
 Recommends:
 Suggests:
 Pre-Depends:

@@ -27,4 +27,7 @@ if ! /usr/bin/id -u nbox > /dev/null 2>&1; then
     /usr/sbin/useradd -M -N -g nbox -r nbox
 fi
 
+systemctl enable nbox-rrd.service > /dev/null
+systemctl restart nbox-rrd
+
 exit 0
