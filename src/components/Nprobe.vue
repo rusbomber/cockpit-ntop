@@ -30,6 +30,19 @@
 	</div>
 </nav>
 
+<!--
+<div class="chart-box">
+	<div class="row">
+		<div class="col-sm">
+			<TSChart height="120px" :series="chart1Series"></TSChart>
+		</div>
+		<div class="col-sm">
+			<TSChart height="120px" :series="chart2Series"></TSChart>
+		</div>
+	</div>
+</div>
+-->
+
 <div class="configuration">	
 	<template  v-for="instance in instances" >
 		<NprobeConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
@@ -48,7 +61,7 @@
 
 		<div class="form-group">
 			<h5>Instance Name</h5>
-			<input type="text" class="form-control" :class="{ 'border border-danger': invalidInstanceName }" ref="instanceName" @change="onConfigChange()" />
+			<input type="text" class="form-control" :class="{ 'border border-danger': invalidInstanceName }" ref="instanceName" @change="onModalChange()" />
 			<small class="form-text text-muted">Name for the new instance. Only letters and numbers are allowed.</small>
 		</div>
 
@@ -57,7 +70,7 @@
 		</div>
 
 		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'probe' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'probe'; onConfigChange()">
+			<a class="wizard-link" href="#" @click="instanceMode = 'probe'; onModalChange()">
 			<div class="card-body">
 				<div class="form-group wizard-form-group">
 					<h5><font-awesome-icon icon="fa-solid fa-ethernet" /> Probe</h5>
@@ -68,7 +81,7 @@
 		</div>
 
 		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'collector' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'collector'; onConfigChange()">
+			<a class="wizard-link" href="#" @click="instanceMode = 'collector'; onModalChange()">
 			<div class="card-body">	
 				<div class="form-group wizard-form-group">
 					<h5><font-awesome-icon icon="fa-solid fa-bezier-curve" /> Collector</h5>
@@ -79,7 +92,7 @@
 		</div>
 
 		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'custom' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'custom'; onConfigChange()">
+			<a class="wizard-link" href="#" @click="instanceMode = 'custom'; onModalChange()">
 			<div class="card-body">	
 				<div class="form-group wizard-form-group">
 					<h5><font-awesome-icon icon="fa-solid fa-file-lines" /> Custom</h5>
@@ -111,6 +124,7 @@ import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { stubMode, fileExists, getConfigurationFileList } from "../functions";
 import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
+import TSChart from './TSChart.vue'
 import LicenseConf from './LicenseConf.vue'
 
 const productName = ref("nprobe")
@@ -129,6 +143,16 @@ const instances = ref([])
 const instanceName = ref(null)
 const validationOk = ref(false);
 const invalidInstanceName = ref(false)
+
+const chart1Series = ref([{
+	name: 'Packets',
+	data: []
+}])
+
+const chart2Series = ref([{
+	name: 'Bytes',
+	data: []
+}])
 
 /* Before mount: initialize configuration */
 onBeforeMount(async () => {
@@ -177,13 +201,43 @@ onBeforeMount(async () => {
 	}
 })
 
+function updateCharts() {
+	/*
+	let new_value = Math.floor(Math.random() * 100000);
+	let new_data = chart1Series.value[0].data;
+	if (new_data.length > 20)
+		new_data.shift();
+	new_data.push({
+		x: new Date().getTime(),
+		y: new_value,
+	});
+	chart1Series.value[0].data = new_data;	
+
+	new_value = Math.floor(Math.random() * 100000);
+	new_data = chart2Series.value[0].data;
+	//if (new_data.length > 10)
+	//	new_data.shift();
+	new_data.push({
+		x: new Date().getTime(),
+		y: new_value,
+	});
+	chart2Series.value[0].data = new_data;	
+	*/
+}
+
+onMounted(async () => {
+	setInterval(() => {
+		updateCharts();
+	}, 1000)
+});
+
 function isValidInstanceName(str) {
 	var pattern = new RegExp('^([a-z\\d-]*[a-z\\d])*$','i');
 	return pattern.test(str);
 }
 
-function onConfigChange(e) {
-	/* Use @change="event => onConfigChange(event)" to pass the event */
+function onModalChange(e) {
+	/* Use @change="event => onModalChange(event)" to pass the event */
 	/* if (e) { 
 	 * 	console.log(e);
 	 * 	console.log(e.target.value);

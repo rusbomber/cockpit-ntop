@@ -22,6 +22,10 @@ body {
   margin: 0;
 }
 
+.chart-box {
+  background: #fff;
+}
+
 .service-switch {
   float: right;
   transform: scale(1.2);
