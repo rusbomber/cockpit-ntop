@@ -46,11 +46,15 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_installdeb
+	# System
 	mkdir -p ./debian/nboxui/
 	cp -vr ../../system/* ./debian/nboxui/
+	# ntopng
 	mkdir -p ./debian/nboxui/usr/share/cockpit/ntopng
 	cp -vr ../../plugins/ntopng/* ./debian/nboxui/usr/share/cockpit/ntopng/
 	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/ntopng/
+	# nProbe
+	mkdir -p ./debian/nboxui/usr/share/cockpit/nprobe
 	cp -vr ../../plugins/nprobe/* ./debian/nboxui/usr/share/cockpit/nprobe/
 	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/nprobe/
 	dh_gencontrol
