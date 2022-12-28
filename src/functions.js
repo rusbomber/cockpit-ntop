@@ -252,3 +252,52 @@ export async function getConfigurationFileList(product) {
 	return instances;
 }
 
+export async function getRRDData(application, instance, minutes) {
+	let data = {};
+
+	const volume = "/storage";
+	const dir = volume + "/rrd/" + application;
+	const path = dir + "/" + instance + ".rrd";
+
+	const cmd = [];
+	cmd.push("rrdtool");
+	cmd.push("fetch");
+	cmd.push(path);
+	cmd.push("AVERAGE");
+	cmd.push("-s");
+	cmd.push("-" + minutes + "min");
+
+	var proc = await cockpit.spawn(cmd, {superuser:"try"})
+	.then(function (output) { 
+		const lines = output.trim().split(/\r?\n/);
+
+		const names = lines.shift().split(' ').filter(name => name.length > 0);
+
+		const empty = lines.shift();
+
+		for (const line of lines) {
+			const columns = line.split(' ');
+			const epoch = columns[0].split(':')[0];
+			let index = 1;
+			for (const name of names) {
+				if (columns[index] != '-nan') {
+					const value = columns[index];
+					if (!data[name])
+						data[name] = [];
+					data[name].push({
+						x: parseInt(epoch)*1000,
+						y: parseFloat(value)
+					});
+				}
+				index++;
+			}
+		}
+	})
+	.catch(function (exception) {
+		console.log("Failure reading RRD " + path);
+		//console.log(exception);
+	});
+	
+	return data;
+}
+

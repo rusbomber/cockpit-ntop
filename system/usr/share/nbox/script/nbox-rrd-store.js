@@ -100,4 +100,4 @@ async function dump_nprobe_stats() {
 	}
 }
 
-setInterval(dump_nprobe_stats, 1000);
+setInterval(dump_nprobe_stats, 5000);

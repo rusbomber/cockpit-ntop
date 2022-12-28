@@ -9,6 +9,10 @@ const props = defineProps({
 	series: {
 		type: Object,
 		required: true
+	},
+	unit: {
+		type: String, /* bps, pps */
+		required: false
 	}
 })
 
@@ -30,12 +34,17 @@ const chartOptions = ref({
 	yaxis: {
 		labels: {
 			formatter: function (value) {
-				return value/1000 + " Kbps";
+				if (props.unit == 'bps')
+					return value/1000000 + " Mbps";
+				else
+					return value/1000 + " Kpps";
 			}
 		}
 	},
 	tooltip: {
+		enabled: false,
 		x: {
+			show: false,
 			format: 'dd MMM yyyy hh:mm:ss'
 		}
 	},

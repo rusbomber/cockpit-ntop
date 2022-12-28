@@ -30,18 +30,16 @@
 	</div>
 </nav>
 
-<!--
 <div class="chart-box">
 	<div class="row">
 		<div class="col-sm">
-			<TSChart height="120px" :series="chart1Series"></TSChart>
+			<TSChart height="120px" :series="chart1Series" unit="bps"></TSChart>
 		</div>
 		<div class="col-sm">
-			<TSChart height="120px" :series="chart2Series"></TSChart>
+			<TSChart height="120px" :series="chart2Series" unit="pps"></TSChart>
 		</div>
 	</div>
 </div>
--->
 
 <div class="configuration">	
 	<template  v-for="instance in instances" >
@@ -121,7 +119,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, fileExists, getConfigurationFileList } from "../functions";
+import { stubMode, fileExists, getConfigurationFileList, getRRDData } from "../functions";
 import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
 import TSChart from './TSChart.vue'
@@ -145,12 +143,12 @@ const validationOk = ref(false);
 const invalidInstanceName = ref(false)
 
 const chart1Series = ref([{
-	name: 'Packets',
+	name: 'Bytes',
 	data: []
 }])
 
 const chart2Series = ref([{
-	name: 'Bytes',
+	name: 'Packets',
 	data: []
 }])
 
@@ -201,34 +199,30 @@ onBeforeMount(async () => {
 	}
 })
 
-function updateCharts() {
-	/*
-	let new_value = Math.floor(Math.random() * 100000);
-	let new_data = chart1Series.value[0].data;
-	if (new_data.length > 20)
-		new_data.shift();
-	new_data.push({
-		x: new Date().getTime(),
-		y: new_value,
-	});
-	chart1Series.value[0].data = new_data;	
+async function updateCharts() {
+	const data = await getRRDData("nprobe", "nprobe", 10);
 
-	new_value = Math.floor(Math.random() * 100000);
-	new_data = chart2Series.value[0].data;
-	//if (new_data.length > 10)
-	//	new_data.shift();
-	new_data.push({
-		x: new Date().getTime(),
-		y: new_value,
-	});
-	chart2Series.value[0].data = new_data;	
-	*/
+	/*
+	 * Available RRDs:
+	 * receivedPkts
+	 * filteredPkts
+	 * receivedBytes
+	 * droppedPkts
+	 * exportedFlows
+	 */
+
+	if (data['receivedBytes'])
+		chart1Series.value[0].data = data['receivedBytes'];
+
+	if (data['receivedPkts'])
+		chart2Series.value[0].data = data['receivedPkts'];
 }
 
 onMounted(async () => {
+	updateCharts();
 	setInterval(() => {
 		updateCharts();
-	}, 1000)
+	}, 5000)
 });
 
 function isValidInstanceName(str) {
