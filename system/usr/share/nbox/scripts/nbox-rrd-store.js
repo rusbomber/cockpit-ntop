@@ -46,11 +46,11 @@ async function update_rrd(application, instance, stats) {
 
 	if (!fs.existsSync(path)) {
 		cmd = "rrdtool create --step 10 " + path + " " +
-			"DS:receivedPkts:GAUGE:30:0:U " +
-			"DS:filteredPkts:GAUGE:30:0:U " +
-			"DS:droppedPkts:GAUGE:30:0:U " +
-			"DS:receivedBytes:GAUGE:30:0:U " +
-			"DS:exportedFlows:GAUGE:30:0:U " +
+			"DS:receivedPkts:DERIVE:30:0:U " +
+			"DS:filteredPkts:DERIVE:30:0:U " +
+			"DS:droppedPkts:DERIVE:30:0:U " +
+			"DS:receivedBytes:DERIVE:30:0:U " +
+			"DS:exportedFlows:DERIVE:30:0:U " +
 			"RRA:AVERAGE:0.5:1:180 " +
 			"RRA:AVERAGE:0.5:30:600";
 		output = await exec(cmd);

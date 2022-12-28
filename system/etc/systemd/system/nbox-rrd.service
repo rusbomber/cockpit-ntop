@@ -4,7 +4,7 @@ After=network.target syslog.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/node /usr/share/nbox/script/nbox-rrd-store.js
+ExecStart=/usr/bin/node /usr/share/nbox/scripts/nbox-rrd-store.js
 Restart=on-failure
 
 [Install]

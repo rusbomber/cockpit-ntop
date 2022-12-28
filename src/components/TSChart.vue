@@ -35,7 +35,7 @@ const chartOptions = ref({
 		labels: {
 			formatter: function (value) {
 				if (props.unit == 'bps')
-					return value/1000000 + " Mbps";
+					return ((value/1000000)*8) + " Mbps";
 				else
 					return value/1000 + " Kpps";
 			}

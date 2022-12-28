@@ -277,16 +277,17 @@ export async function getRRDData(application, instance, minutes) {
 
 		for (const line of lines) {
 			const columns = line.split(' ');
-			const epoch = columns[0].split(':')[0];
+			const epoch = parseInt(columns[0].split(':')[0]);
 			let index = 1;
 			for (const name of names) {
+				if (!data[name])
+					data[name] = [];
+
 				if (columns[index] != '-nan') {
-					const value = columns[index];
-					if (!data[name])
-						data[name] = [];
+					const value = parseFloat(columns[index]);
 					data[name].push({
-						x: parseInt(epoch)*1000,
-						y: parseFloat(value)
+						x: epoch*1000,
+						y: value
 					});
 				}
 				index++;
