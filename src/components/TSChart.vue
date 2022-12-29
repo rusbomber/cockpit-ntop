@@ -16,6 +16,78 @@ const props = defineProps({
 	}
 })
 
+const types = {
+	bps: {
+		id: "bps",
+		um: ["bps", "Kbps", "Mbps", "Gbps", "Tbps"],
+		step: 1000,
+		decimal: 2,
+		scale_values: 8,
+	},
+	fps: {
+		id: "fps",
+		um: ["flows/s", "Kflows/s", "Mflows/s", "Gflows/s"],
+		step: 1000,
+		decimal: 2,
+		scale_values: null,
+	},
+	pps: {
+		id: "pps",
+		um: ["pps", "Kpps", "Mpps", "Gpps", "Tpps"],
+		step: 1000,
+		decimal: 2,
+		scale_values: null,
+	},
+}
+
+function getFormatter(type) {
+	let typeOptions = types[type];
+	let maxLenValue = 6; // 000.00
+	let maxLenUm = 8; // Mflows/s
+	let formatter = function(value) {
+		if (value == null) {
+			return '';
+		}
+		if (!typeOptions) {
+			return value;
+		}
+		if (typeOptions.scale_values != null) {
+			value *= typeOptions.scale_values;
+		}
+		let negativeValue = value < 0;
+		if (negativeValue) { value *= -1; }
+
+		let step = typeOptions.step;
+		let decimal = typeOptions.decimal;
+		let measures = typeOptions.um;
+		let i = 0;
+		if (typeOptions.max_value != null && value > typeOptions.max_value) {
+			value = typeOptions.max_value
+		}
+
+		while (value >= step && i < measures.length) {
+			value = value / step;
+			i += 1;
+		}
+
+		if (decimal != null && decimal > 0) {
+			value = value * Math.pow(10, decimal);
+			value = Math.round(value);
+			value = value / Math.pow(10, decimal);
+			value = value.toFixed(decimal);
+		} else {
+			value = Math.round(value);
+		}
+
+		if (negativeValue) { value *= -1; }
+		let valString = `${value}`;
+		let mString = `${measures[i]}`;
+		let text = `${valString} ${mString}`;
+		return text;
+	}
+	return formatter;
+}
+
 const chartOptions = ref({
 	chart: {
 		stacked: true,
@@ -33,12 +105,7 @@ const chartOptions = ref({
 	},
 	yaxis: {
 		labels: {
-			formatter: function (value) {
-				if (props.unit == 'bps')
-					return ((value/1000000)*8) + " Mbps";
-				else
-					return value/1000 + " Kpps";
-			}
+			formatter: getFormatter(props.unit)
 		}
 	},
 	tooltip: {
