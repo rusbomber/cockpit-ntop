@@ -6,6 +6,10 @@
 import { ref, watch, nextTick, onMounted, computed } from "vue";
 
 const props = defineProps({
+	name: {
+		type: String,
+		required: true
+	},
 	series: {
 		type: Object,
 		required: true
@@ -97,6 +101,16 @@ const chartOptions = ref({
 		},
 		toolbar: {
 			show: false
+		}
+	},
+	title: {
+		text: props.name,
+		margin: 0,
+		offsetX: 75,
+		offsetY: 5,
+		floating: true,
+		style: {
+			fontWeight:  'lighter',
 		}
 	},
 	xaxis: {

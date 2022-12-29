@@ -4,10 +4,10 @@
 <div class="chart-box" v-show="chartsAvailable">
 	<div class="row">
 		<div class="col-sm">
-			<TSChart height="120px" :series="chart1Series" unit="bps"></TSChart>
+			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
 		</div>
 		<div class="col-sm">
-			<TSChart height="120px" :series="chart2Series" unit="pps"></TSChart>
+			<TSChart height="120px" name="Flow Export Rate" :series="chart2Series" unit="fps"></TSChart>
 		</div>
 	</div>
 </div>
@@ -127,8 +127,8 @@ const interfacesList = ref([]);
 
 /* Charts */
 const chartsAvailable = ref(false);
-const chart1Series = ref([{ name: 'Bytes',   data: [] }])
-const chart2Series = ref([{ name: 'Packets', data: [] }])
+const chart1Series = ref([{ name: 'Bytes', data: [] }])
+const chart2Series = ref([{ name: 'Flows', data: [] }])
 
 /* Update service switch state */
 async function updateServiceSwitch() {
@@ -290,7 +290,7 @@ async function updateCharts() {
 		 */
 
 		chart1Series.value[0].data = data['receivedBytes'];
-		chart2Series.value[0].data = data['receivedPkts'];
+		chart2Series.value[0].data = data['exportedFlows'];
 
 		chartsAvailable.value = true;
 	}
