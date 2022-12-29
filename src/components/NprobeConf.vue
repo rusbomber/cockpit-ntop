@@ -41,8 +41,8 @@
 
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
-			<div class="form-floating" :class="{ collapse: mode != 'custom' }" id="collapseAdvancedSettings">
-				<textarea class="form-control" placeholder="Advanced settings" id="advancedSettingsTextareaId" style="height: 100px" ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
+			<div class="form-floating" :class="{ 'collapse': mode != 'custom' }" id="collapseAdvancedSettings">
+				<textarea class="form-control input-textarea" placeholder="Advanced settings" id="advancedSettingsTextareaId" :class="{ 'big-input-textarea': mode == 'custom' }"  ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
 				<label for="advancedSettingsTextareaId">key = value</label>
 			</div>
 		</div>

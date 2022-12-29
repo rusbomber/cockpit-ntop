@@ -50,7 +50,7 @@
 			<div class="form-group">
 				<h5>Collection Endpoint</h5>
 				<input type="text" class="form-control" :class="{ 'border border-danger': invalidFlowCollectionEndpoint }" ref="flowCollectionEndpoint" @change="onConfigChange()" />
-				<small class="form-text text-muted">Flow collection endpoint (e.g. tcp://127.0.0.1:5556) to receive flows from nProbe.</small>
+				<small class="form-text text-muted">Flow collection endpoint (e.g. zmq://127.0.0.1:5556 or kafka://192.168.1.1) to receive flows from nProbe.</small>
 			</div>
 		</div>
 		
@@ -184,6 +184,7 @@ async function loadConfiguration() {
 			case '--interface':
 				if (option.value) {
 					if (option.value.startsWith("tcp://") ||
+					    option.value.startsWith("zmq://") ||
 					    option.value.startsWith("kafka://")) {
 						if (flowCollectionEndpoint.value.value) {
 							appendAdvancedSettings(option.name, option.value);
@@ -294,7 +295,7 @@ function onServiceSwitchChange() {
 }
 
 function isEndpoint(str) {
-	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or kafka://
+	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
 		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
 		'((\\d{1,3}\\.){3}\\d{1,3})|'+ // or IP (v4) address
 		'(\\*))'+ // '*'

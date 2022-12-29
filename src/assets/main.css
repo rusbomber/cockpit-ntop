@@ -110,3 +110,11 @@ body {
   font-weight: normal;
 }
 
+.input-textarea {
+  height: 100px!important;
+}
+
+.big-input-textarea {
+  height: 400px!important;
+}
+
