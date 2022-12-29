@@ -311,7 +311,7 @@ function onServiceSwitchChange() {
 	if (stubMode()) {
 		console.log("Switching " + serviceName + " " + nprobeSwitch.value);
 	} else {
-		toggleService(serviceName, nprobeSwitch.value);
+		toggleService(serviceName, nprobeSwitch.value, props.name);
 	}
 
 	/* This is not required as there is a setInterval
