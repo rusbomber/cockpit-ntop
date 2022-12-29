@@ -138,18 +138,18 @@ onBeforeMount(async () => {
 
 	if (stubMode()) {
 		instances.value.push({
-			name: 'eno1',
-			label: 'eno1',
+			name: 'SampleInterface',
+			label: 'SampleInterface',
 			mode: 'probe'
 		});
 		instances.value.push({
-			name: 'Gw',
-			label: 'Gw',
+			name: 'SampleNetFlow',
+			label: 'SampleNetFlow',
 			mode: 'collector'
 		});
 		instances.value.push({
-			name: 'Proxy',
-			label: 'Proxy',
+			name: 'SampleCustom',
+			label: 'SampleCustom',
 			mode: 'custom'
 		});
 	} else {

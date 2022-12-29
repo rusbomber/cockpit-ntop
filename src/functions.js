@@ -3,6 +3,17 @@ export function stubMode() {
 	return false;
 }
 
+export function isEndpoint(str) {
+	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
+		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
+		'((\\d{1,3}\\.){3}\\d{1,3})|'+ // or IP (v4) address
+		'(\\*))'+ // '*'
+		'(\\:\\d+)?'+ // port
+		'(c)?' + // 'c'
+		'$','i');
+	return pattern.test(str);
+}
+
 export async function getNetworkInterfaces() {
 	let json;
 
@@ -219,6 +230,36 @@ export async function writeConfigurationFile(product, configuration, instance) {
 	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".conf";
 
 	const content = serializeConfiguration(configuration);
+
+	await writeFile(path, content);
+}
+
+export async function readMetadata(product, instance) {
+	let configuration = {};
+
+	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".json";
+
+	const content = await readFile(path);
+
+	if (content) {
+		configuration = JSON.parse(content);
+	}
+
+	if (!configuration) {
+		configuration = {};
+	}
+
+	return configuration;
+}
+
+export async function writeMetadata(product, configuration, instance) {
+	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".json";
+
+	if (!configuration) {
+		configuration = {};
+	}
+
+	const content = JSON.stringify(configuration);
 
 	await writeFile(path, content);
 }

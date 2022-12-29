@@ -39,6 +39,19 @@
 			<small class="form-text text-muted">Netflow/sFlow collection port.</small>
 		</div>
 
+		<div class="form-group" v-show="mode != 'custom'">
+			<h5>Flow Export to ntopng</h5>
+			<Toggle v-model="flowExportSwitch" @change="onConfigChange()" />
+		</div>
+
+		<div class="form-floating collapse" :class="{ 'show': flowExportSwitch }">
+			<div class="form-group" v-show="mode != 'custom'">
+				<h5>Export Endpoint</h5>
+				<input type="text" class="form-control" :class="{ 'border border-danger': invalidFlowExportEndpoint }" ref="flowExportEndpoint" @change="onConfigChange()" />
+				<small class="form-text text-muted">Flow export endpoint (e.g. zmq://*:5556) to deliver flows to ntopng.</small>
+			</div>
+		</div>
+
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
 			<div class="form-floating" :class="{ 'collapse': mode != 'custom' }" id="collapseAdvancedSettings">
@@ -74,7 +87,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, getRRDData } from "../functions";
+import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, getRRDData } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
@@ -116,11 +129,14 @@ const dnsMode = ref("0");
 /* Form data */
 const interfaceMultiselect = ref(null);
 const flowCollectionPort = ref(null)
+const flowExportSwitch = ref(false)
+const flowExportEndpoint = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
 
 const validationOk = ref(true);
+const invalidFlowExportEndpoint = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
@@ -155,15 +171,22 @@ function appendAdvancedSettings(name, value) {
 }
 
 async function loadConfiguration() {
-	let configuration = []
+	let configuration = [];
+	let metadata = {};
 
 	/* Read configuration file, if any */
 	if (stubMode()) {
 		configuration = [ 
-			{ name: '-i', value: 'eno1' } 
-		]
+			{ name: '-i', value: 'eno1' }, 
+			{ name: '--ntopng', value: 'zmq://*:5556' } 
+		];
 	} else { 
+		metadata = await readMetadata(serviceName, props.name);
 		configuration = await readConfigurationFile(serviceName, props.name);
+
+		if (metadata.mode) {
+			props.mode = metadata.mode;
+		}
 	}
 
 	if (!props.mode) {
@@ -171,24 +194,41 @@ async function loadConfiguration() {
 	}
 
 	configuration.forEach(function (option) {
-		switch (option.name) {
-			case '-i':
-			case '--interface':
-				if (option.value && option.value != 'none') {
-					props.mode = 'probe'; //TODO read from metadata
-					selectedInterfaces.value.push(option.value);
-				}
-				break;
-			case '-3':
-			case '--collector-port':
-				if (option.value && option.value != 'none') {
-					props.mode = 'collector'; //TODO read from metadata
-					flowCollectionPort.value.value = option.value;
-				}
-				break;
-			default:
-				appendAdvancedSettings(option.name, option.value);
-				break;
+		if (props.mode == 'custom') {
+			appendAdvancedSettings(option.name, option.value);
+		} else {
+			switch (option.name) {
+				case '-i':
+				case '--interface':
+					if (option.value && option.value != 'none') {
+						selectedInterfaces.value.push(option.value);
+					}
+					break;
+				case '-3':
+				case '--collector-port':
+					if (option.value && option.value != 'none') {
+						flowCollectionPort.value.value = option.value;
+					}
+					break;
+				case '--zmq':
+				case '--ntopng':
+					if (option.value) {
+						if (option.value.startsWith("tcp://") ||
+						    option.value.startsWith("zmq://") ||
+						    option.value.startsWith("kafka://")) {
+							if (flowExportEndpoint.value.value) {
+								appendAdvancedSettings(option.name, option.value);
+							} else {
+								flowExportSwitch.value = true;
+								flowExportEndpoint.value.value = option.value;
+							}
+						}
+					}
+					break;
+				default:
+					appendAdvancedSettings(option.name, option.value);
+					break;
+			}
 		}
 	});
 
@@ -199,28 +239,47 @@ async function loadConfiguration() {
 function computeConfiguration() {
 	let form_configuration = []
 
-	if (selectedInterfaces.value && selectedInterfaces.value != '') {
-		form_configuration.push({ name: '-i', value: selectedInterfaces.value });
+	if (props.mode == 'probe') {
+		if (selectedInterfaces.value && selectedInterfaces.value != '') {
+			form_configuration.push({ name: '-i', value: selectedInterfaces.value });
+		}
 	}
 
-	if (flowCollectionPort.value && flowCollectionPort.value != '') {
-		form_configuration.push({ name: '-3', value: flowCollectionPort.value.value });
+	if (props.mode == 'collector') {
+		if (flowCollectionPort.value && flowCollectionPort.value != '') {
+			form_configuration.push({ name: '-3', value: flowCollectionPort.value.value });
+		}
+	}
+
+	if (props.mode != 'custom') {
+		if (flowExportSwitch.value && flowExportEndpoint.value) {
+			form_configuration.push({ name: '--ntopng', value: flowExportEndpoint.value.value });
+			form_configuration.push({ name: '-T', value: '@NTOPNG@' });
+		}
 	}
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
 	const configuration = form_configuration.concat(advanced_configuration);
 
-	return configuration
+	return configuration;
+}
+
+function computeMetadata() {
+	let metadata = {};
+	metadata.mode = props.mode;
+	return metadata;
 }
 
 async function saveConfiguration() {
-	const configuration = computeConfiguration()
+	const configuration = computeConfiguration();
+	const metadata = computeMetadata();
 
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
 		await writeConfigurationFile(serviceName, configuration, props.name);
+		await writeMetadata(serviceName, metadata, props.name);
 	}
 
 	/* Update configChanged with timeout to handle async updates triggering change event */
@@ -269,8 +328,19 @@ function onConfigChange(e) {
 	 * 	console.log(e.target.value);
 	 * } */
 
+	/* Reset */
+	invalidFlowExportEndpoint.value = false;
+
+	/* Validate */
+	if (flowExportSwitch.value) {
+		const endpoint = flowExportEndpoint.value.value;
+		if (endpoint && !isEndpoint(endpoint)) {
+			invalidFlowExportEndpoint.value = true;
+		}
+	}
+	
 	/* Update global validation flag */
-	validationOk.value = true;
+	validationOk.value = !invalidFlowExportEndpoint.value;
 
 	/* Set config changed */
 	configChanged.value = true;

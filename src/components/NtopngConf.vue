@@ -53,7 +53,6 @@
 				<small class="form-text text-muted">Flow collection endpoint (e.g. zmq://127.0.0.1:5556 or kafka://192.168.1.1) to receive flows from nProbe.</small>
 			</div>
 		</div>
-		
 
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
@@ -94,7 +93,7 @@ import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
-import { stubMode, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
+import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
 
 /* 
  * Component parameters
@@ -292,17 +291,6 @@ function onServiceSwitchChange() {
 		updateServiceSwitch();
 	}, 2000)
 	*/
-}
-
-function isEndpoint(str) {
-	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
-		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
-		'((\\d{1,3}\\.){3}\\d{1,3})|'+ // or IP (v4) address
-		'(\\*))'+ // '*'
-		'(\\:\\d+)?'+ // port
-		'(c)?' + // 'c'
-		'$','i');
-	return pattern.test(str);
 }
 
 function onConfigChange(e) {
