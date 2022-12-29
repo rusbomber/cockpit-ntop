@@ -64,10 +64,24 @@
 
 	<div class="card-footer">
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+			<button class="btn btn-danger" @click="onDeleteModal.show();">Delete Instance</button>
 			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!configChanged || !validationOk">Save Configuration</button>
 		</div>
 	</div>
 </div>
+
+<Modal ref="onDeleteModal">
+	<template v-slot:title>
+		Delete {{ name }} Instance
+	</template>
+	<template v-slot:body>
+		Are you sure you want to delete this {{ serviceName }} instance and its configuration?
+	</template>
+	<template v-slot:footer>
+		<button class="btn btn-primary" @click="deleteConfiguration(); onDeleteModal.close()">Confirm</button>
+		<button class="btn btn-secondary" @click="onDeleteModal.close()">Close</button>
+	</template>
+</Modal>
 
 <Modal ref="onApplyModal">
 	<template v-slot:title>
@@ -87,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, getRRDData } from "../functions";
+import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
@@ -134,6 +148,7 @@ const flowExportEndpoint = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
+const onDeleteModal = ref(null)
 
 const validationOk = ref(true);
 const invalidFlowExportEndpoint = ref(false)
@@ -288,6 +303,13 @@ async function saveConfiguration() {
 	if (nprobeEnabled.value) {
 		onApplyModal.value.show();
 	}
+}
+
+async function deleteConfiguration() {
+	toggleService(serviceName, false, props.name);
+	deleteMetadata(serviceName, props.name);
+	deleteConfigurationFile(serviceName, props.name);
+	location.reload();
 }
 
 /* Before mount: initialize configuration */

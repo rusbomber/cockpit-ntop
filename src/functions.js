@@ -234,6 +234,11 @@ export async function writeConfigurationFile(product, configuration, instance) {
 	await writeFile(path, content);
 }
 
+export async function deleteConfigurationFile(product, instance) {
+	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".conf";
+	await cockpit.spawn(["rm", path], {superuser:"require"})
+}
+
 export async function readMetadata(product, instance) {
 	let configuration = {};
 
@@ -262,6 +267,11 @@ export async function writeMetadata(product, configuration, instance) {
 	const content = JSON.stringify(configuration);
 
 	await writeFile(path, content);
+}
+
+export async function deleteMetadata(product, instance) {
+	const path = "/etc/" + product + "/" + product + (instance ? "-" + instance : "") + ".json";
+	await cockpit.spawn(["rm", path], {superuser:"require"})
 }
 
 export async function getConfigurationFileList(product) {
@@ -341,7 +351,7 @@ export async function getRRDData(application, instance, minutes) {
 		}
 	})
 	.catch(function (exception) {
-		console.log("Failure reading RRD " + path);
+		//console.log("Failure reading RRD " + path);
 		//console.log(exception);
 	});
 	
