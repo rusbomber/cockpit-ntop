@@ -3,36 +3,34 @@
 
 <div v-if="installed">
 
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<a class="navbar-brand" href="#">
-			<h3 class="product-name">{{ productLabel }}</h3>
-		</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<a class="navbar-brand" href="#">
+		<h3 class="product-name">{{ productLabel }}</h3>
+	</a>
 
-		<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
+	<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainMenu" aria-controls="navbarMainMenu" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
 
-		<div class="collapse navbar-collapse" id="navbarMainMenu">
-			<ul class="navbar-nav mr-auto">
-				<li class="nav-item" :class="{ 'active': tab == 'configuration'}">
-					<a class="nav-link" href="#" @click="tab = 'configuration'">Setup</a>
-				</li>
-				<li class="nav-item" :class="{ 'active': tab == 'license'}">
-					<a class="nav-link" href="#" @click="tab = 'license'">License</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent">Logs</a>
-				</li>
-			</ul>
-		</div>
-	</nav>
-
-	<div class="configuration">
-		<NtopngConf :name="instanceName" v-show="tab == 'configuration'" />
-		<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
+	<div class="collapse navbar-collapse" id="navbarMainMenu">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item" :class="{ 'active': tab == 'configuration'}">
+				<a class="nav-link" href="#" @click="tab = 'configuration'">Setup</a>
+			</li>
+			<li class="nav-item" :class="{ 'active': tab == 'license'}">
+				<a class="nav-link" href="#" @click="tab = 'license'">License</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent">Logs</a>
+			</li>
+		</ul>
 	</div>
+</nav>
 
-</div>
+<NtopngConf :name="instanceName" v-show="tab == 'configuration'" />
+<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
+
+</div> <!-- installed -->
 <div v-else>
 	<br />
 	<center>

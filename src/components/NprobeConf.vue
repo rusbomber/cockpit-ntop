@@ -1,6 +1,17 @@
 
 <template>
 
+<div class="chart-box" v-show="chartsAvailable">
+	<div class="row">
+		<div class="col-sm">
+			<TSChart height="120px" :series="chart1Series" unit="bps"></TSChart>
+		</div>
+		<div class="col-sm">
+			<TSChart height="120px" :series="chart2Series" unit="pps"></TSChart>
+		</div>
+	</div>
+</div>
+
 <div class="configuration">
 <div class="card w-100">
 	<div class="card-header">
@@ -63,11 +74,12 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { stubMode, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, getRRDData } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
-import { stubMode, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
+import TSChart from './TSChart.vue'
 
 /* 
  * Component parameters
@@ -112,6 +124,11 @@ const validationOk = ref(true);
 
 /* Data */
 const interfacesList = ref([]);
+
+/* Charts */
+const chartsAvailable = ref(false);
+const chart1Series = ref([{ name: 'Bytes',   data: [] }])
+const chart2Series = ref([{ name: 'Packets', data: [] }])
 
 /* Update service switch state */
 async function updateServiceSwitch() {
@@ -259,6 +276,26 @@ function onConfigChange(e) {
 	configChanged.value = true;
 }
 
+async function updateCharts() {
+	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
+
+	if (data && data['receivedBytes'] && data['receivedPkts']) {
+		/*
+		 * Available RRDs:
+		 * receivedPkts
+		 * filteredPkts
+		 * receivedBytes
+		 * droppedPkts
+		 * exportedFlows
+		 */
+
+		chart1Series.value[0].data = data['receivedBytes'];
+		chart2Series.value[0].data = data['receivedPkts'];
+
+		chartsAvailable.value = true;
+	}
+}
+
 /* On mount: load configuration from file */
 onMounted(async () => {
 	await loadConfiguration();
@@ -266,6 +303,11 @@ onMounted(async () => {
 	setInterval(() => {
 		updateServiceSwitch();
 	}, 2000)
+
+	updateCharts();
+	setInterval(() => {
+		updateCharts();
+	}, 5000)
 });
 
 </script>

@@ -30,25 +30,12 @@
 	</div>
 </nav>
 
-<div class="chart-box">
-	<div class="row">
-		<div class="col-sm">
-			<TSChart height="120px" :series="chart1Series" unit="bps"></TSChart>
-		</div>
-		<div class="col-sm">
-			<TSChart height="120px" :series="chart2Series" unit="pps"></TSChart>
-		</div>
-	</div>
-</div>
-
-<div class="configuration">	
-	<template  v-for="instance in instances" >
-		<NprobeConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
-	</template>
-	<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
-	<div v-if="tab != 'license' && instances.length == 0">
-		<br /><center><span><b>nProbe</b> has not been configured yet, please create an instance.</span></center>
-	</div>
+<template  v-for="instance in instances" >
+	<NprobeConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
+</template>
+<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
+<div v-if="tab != 'license' && instances.length == 0">
+	<br /><center><span><b>nProbe</b> has not been configured yet, please create an instance.</span></center>
 </div>
 
 <Modal ref="createInstanceModal">
@@ -107,7 +94,7 @@
 	</template>
 </Modal>
 
-</div>
+</div> <!-- installed -->
 <div v-else>
 	<br />
 	<center>
@@ -119,10 +106,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, fileExists, getConfigurationFileList, getRRDData } from "../functions";
+import { stubMode, fileExists, getConfigurationFileList } from "../functions";
 import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
-import TSChart from './TSChart.vue'
 import LicenseConf from './LicenseConf.vue'
 
 const productName = ref("nprobe")
@@ -141,16 +127,6 @@ const instances = ref([])
 const instanceName = ref(null)
 const validationOk = ref(false);
 const invalidInstanceName = ref(false)
-
-const chart1Series = ref([{
-	name: 'Bytes',
-	data: []
-}])
-
-const chart2Series = ref([{
-	name: 'Packets',
-	data: []
-}])
 
 /* Before mount: initialize configuration */
 onBeforeMount(async () => {
@@ -198,32 +174,6 @@ onBeforeMount(async () => {
 		tab.value = instances.value[0].name;
 	}
 })
-
-async function updateCharts() {
-	const data = await getRRDData("nprobe", "nprobe", 10);
-
-	/*
-	 * Available RRDs:
-	 * receivedPkts
-	 * filteredPkts
-	 * receivedBytes
-	 * droppedPkts
-	 * exportedFlows
-	 */
-
-	if (data['receivedBytes'])
-		chart1Series.value[0].data = data['receivedBytes'];
-
-	if (data['receivedPkts'])
-		chart2Series.value[0].data = data['receivedPkts'];
-}
-
-onMounted(async () => {
-	updateCharts();
-	setInterval(() => {
-		updateCharts();
-	}, 5000)
-});
 
 function isValidInstanceName(str) {
 	var pattern = new RegExp('^([a-z\\d-]*[a-z\\d])*$','i');

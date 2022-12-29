@@ -254,10 +254,15 @@ export async function getConfigurationFileList(product) {
 
 export async function getRRDData(application, instance, minutes) {
 	let data = {};
+	let systemd_instance = application;
+
+	if (instance && instance.length > 0) {
+		systemd_instance = application + "@" + instance;
+	}
 
 	const volume = "/storage";
 	const dir = volume + "/rrd/" + application;
-	const path = dir + "/" + instance + ".rrd";
+	const path = dir + "/" + systemd_instance + ".rrd";
 
 	const cmd = [];
 	cmd.push("rrdtool");
