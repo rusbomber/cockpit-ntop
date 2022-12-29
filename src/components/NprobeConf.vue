@@ -254,6 +254,8 @@ async function loadConfiguration() {
 function computeConfiguration() {
 	let form_configuration = []
 
+	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
+
 	if (props.mode == 'probe') {
 		if (selectedInterfaces.value && selectedInterfaces.value != '') {
 			form_configuration.push({ name: '-i', value: selectedInterfaces.value });
@@ -269,11 +271,12 @@ function computeConfiguration() {
 	if (props.mode != 'custom') {
 		if (flowExportSwitch.value && flowExportEndpoint.value) {
 			form_configuration.push({ name: '--ntopng', value: flowExportEndpoint.value.value });
-			form_configuration.push({ name: '-T', value: '@NTOPNG@' });
+			const templateDefined = advanced_configuration.find(element => element.name == '-T');
+			if (!templateDefined) {
+				form_configuration.push({ name: '-T', value: '@NTOPNG@' });
+			}
 		}
 	}
-
-	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
 	const configuration = form_configuration.concat(advanced_configuration);
 
