@@ -118,3 +118,8 @@ body {
   height: 400px!important;
 }
 
+.fix-fa-vertical-align {
+  padding-bottom: 3px;
+  width: 0.8rem;
+}
+

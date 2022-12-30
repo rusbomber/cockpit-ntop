@@ -18,7 +18,7 @@
 				<a class="nav-link" href="#" @click="tab = instance.name">{{ instance.label }}</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="#" @click="createInstanceModal.show()">Add Instance</a>
+				<a class="nav-link" href="#" @click="createInstanceModal.show()"><font-awesome-icon icon="fa-solid fa-plus" class="fix-fa-vertical-align" title="Add Instance" /></a>
 			</li>
 			<li class="nav-item" :class="{ 'active': tab == 'license'}">
 				<a class="nav-link" href="#" @click="tab = 'license'">License</a>

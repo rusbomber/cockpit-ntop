@@ -14,6 +14,14 @@ export function isEndpoint(str) {
 	return pattern.test(str);
 }
 
+export function isIPPort(str) {
+	var pattern = new RegExp('^((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
+		'((\\d{1,3}\\.){3}\\d{1,3}))'+ // or IP (v4) address
+		'(\\:\\d+)?'+ // port
+		'$','i');
+	return pattern.test(str);
+}
+
 export async function getNetworkInterfaces() {
 	let json;
 
@@ -136,6 +144,11 @@ export async function restartService(name, instance) {
 		//console.log("restartService exception");
 		//console.log(exception);
 	});
+}
+
+export async function deleteService(name, instance) {
+	toggleService(name, false, instance);
+	await cockpit.spawn(["systemctl", "reset-failed"], {superuser:"require"});
 }
 
 export async function getLSBRelease() {

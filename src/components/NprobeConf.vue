@@ -52,6 +52,26 @@
 			</div>
 		</div>
 
+		<div class="form-group" v-show="mode != 'custom'">
+			<h5>NetFlow Export</h5>
+			<Toggle v-model="collectorSwitch" @change="onConfigChange()" />
+		</div>
+
+		<div class="form-floating collapse" :class="{ 'show': collectorSwitch }">
+			<div class="form-group" v-show="mode != 'custom'">
+				<h5>NetFlow Collector</h5>
+				<input type="text" class="form-control" :class="{ 'border border-danger': invalidCollector }" ref="collector" @change="onConfigChange()" />
+				<small class="form-text text-muted">Collector address (e.g. 192.168.1.1:2055) to deliver NetFlow.</small>
+			</div>
+
+			<div class="form-group" v-show="mode != 'custom'">
+				<h5>NetFlow Version</h5>
+				<Multiselect v-model="selectedNetFlowVersion" :options="NetFlowVersions" mode="single" placeholder="Select the version" :close-on-select="true" ref="NetFlowVersionMultiselect" @change="onConfigChange()" />
+				<small class="form-text text-muted"></small>
+			</div>
+		</div>
+
+
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
 			<div class="form-floating" :class="{ 'collapse': mode != 'custom' }" id="collapseAdvancedSettings">
@@ -101,7 +121,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData } from "../functions";
+import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
@@ -138,13 +158,16 @@ const nprobeSwitch = ref(false)
 /* Empty configuration */
 const selectedInterfaces = ref([]);
 const localNetworks = ref([])
-const dnsMode = ref("0");
+const selectedNetFlowVersion = ref([]);
 
 /* Form data */
 const interfaceMultiselect = ref(null);
 const flowCollectionPort = ref(null)
 const flowExportSwitch = ref(false)
 const flowExportEndpoint = ref(null)
+const collectorSwitch = ref(false)
+const collector = ref(null)
+const NetFlowVersionMultiselect = ref(null);
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
@@ -152,9 +175,11 @@ const onDeleteModal = ref(null)
 
 const validationOk = ref(true);
 const invalidFlowExportEndpoint = ref(false)
+const invalidCollector = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
+const NetFlowVersions = ref(['5', '9', '10'])
 
 /* Charts */
 const chartsAvailable = ref(false);
@@ -225,6 +250,19 @@ async function loadConfiguration() {
 						flowCollectionPort.value.value = option.value;
 					}
 					break;
+				case '-n':
+				case '--collector':
+					if (option.value && option.value != 'none') { 
+						collectorSwitch.value = true;
+						collector.value.value = option.value;
+					}
+					break;
+				case '-V':
+				case '--flow-version':
+					if (option.value) { 
+						selectedNetFlowVersion.value.push(option.value);
+					}
+					break;
 				case '--zmq':
 				case '--ntopng':
 					if (option.value) {
@@ -269,11 +307,19 @@ function computeConfiguration() {
 	}
 
 	if (props.mode != 'custom') {
-		if (flowExportSwitch.value && flowExportEndpoint.value) {
+		if (flowExportSwitch.value && flowExportEndpoint.value.value) {
 			form_configuration.push({ name: '--ntopng', value: flowExportEndpoint.value.value });
 			const templateDefined = advanced_configuration.find(element => element.name == '-T');
 			if (!templateDefined) {
 				form_configuration.push({ name: '-T', value: '@NTOPNG@' });
+			}
+		}
+
+		if (collectorSwitch.value && collector.value.value) {
+			form_configuration.push({ name: '--collector', value: collector.value.value });
+
+			if (selectedNetFlowVersion.value && selectedNetFlowVersion.value != '') {
+				form_configuration.push({ name: '-V', value: selectedNetFlowVersion.value });
 			}
 		}
 	}
@@ -309,7 +355,7 @@ async function saveConfiguration() {
 }
 
 async function deleteConfiguration() {
-	toggleService(serviceName, false, props.name);
+	deleteService(serviceName, props.name);
 	deleteMetadata(serviceName, props.name);
 	deleteConfigurationFile(serviceName, props.name);
 	location.reload();
@@ -355,6 +401,7 @@ function onConfigChange(e) {
 
 	/* Reset */
 	invalidFlowExportEndpoint.value = false;
+	invalidCollector.value = false;
 
 	/* Validate */
 	if (flowExportSwitch.value) {
@@ -363,9 +410,19 @@ function onConfigChange(e) {
 			invalidFlowExportEndpoint.value = true;
 		}
 	}
+
+	if (collectorSwitch.value) {
+		const address = collector.value.value;
+		if (address && !isIPPort(address)) {
+			invalidCollector.value = true;
+		}
+	}
+
 	
 	/* Update global validation flag */
-	validationOk.value = !invalidFlowExportEndpoint.value;
+	validationOk.value =
+		!invalidFlowExportEndpoint.value &&
+		!invalidCollector.value;
 
 	/* Set config changed */
 	configChanged.value = true;
