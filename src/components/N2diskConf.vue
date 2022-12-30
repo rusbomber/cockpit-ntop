@@ -78,7 +78,7 @@
 		The configuration has been modified while {{ serviceName }} was running, please restart the service to apply the changes.
 	</template>
 	<template v-slot:footer>
-		<button class="btn btn-primary" @click="restartService(serviceName); onApplyModal.close()">Restart</button>
+		<button class="btn btn-primary" @click="restartService(serviceName, name); onApplyModal.close()">Restart</button>
 		<button class="btn btn-secondary" @click="onApplyModal.close()">Close</button>
 	</template>
 </Modal>
