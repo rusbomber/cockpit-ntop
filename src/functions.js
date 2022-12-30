@@ -8,6 +8,10 @@ export function isValidInstanceName(str) {
 	return pattern.test(str);
 }
 
+export function isValidPath(path) {
+	return true; //TODO
+}
+
 export function isEndpoint(str) {
 	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
 		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
@@ -300,7 +304,7 @@ export async function getConfigurationFileList(product) {
 		if (data) {
 			const files = data.split(/\r?\n/);
 			files.forEach(function(filename) {
-				let match_arr = filename.match("^nprobe(.*)\\.conf$");
+				let match_arr = filename.match("^" + product + "(.*)\\.conf$");
 				if (match_arr && match_arr.length == 2) {
 					let instance_name = match_arr[1];
 					if (instance_name.startsWith('-')) {

@@ -7,7 +7,7 @@
 			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
 		</div>
 		<div class="col-sm">
-			<TSChart height="120px" name="Flow Export Rate" :series="chart2Series" unit="fps"></TSChart>
+			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="fps"></TSChart>
 		</div>
 	</div>
 </div>
@@ -29,8 +29,14 @@
 
 		<div class="form-group">
 			<h5>Interface</h5>
-			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
+			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" :class="{ 'border border-danger': invalidInterface }" @change="onConfigChange()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
+		</div>
+
+		<div class="form-group">
+			<h5>Storage Path</h5>
+			<input type="text" class="form-control" :class="{ 'border border-danger': invalidStoragePath }" ref="storagePath" @change="onConfigChange()" />
+			<small class="form-text text-muted">Folder where PCAP files are stored.</small>
 		</div>
 
 		<div class="form-group">
@@ -82,7 +88,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData } from "../functions";
+import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
@@ -115,33 +121,26 @@ const n2diskSwitch = ref(false)
 /* Empty configuration */
 const selectedInterfaces = ref([]);
 const localNetworks = ref([])
-const selectedNetFlowVersion = ref([]);
 
 /* Form data */
 const interfaceMultiselect = ref(null);
-const flowCollectionPort = ref(null)
-const flowExportSwitch = ref(false)
-const flowExportEndpoint = ref(null)
-const collectorSwitch = ref(false)
-const collector = ref(null)
-const NetFlowVersionMultiselect = ref(null);
+const storagePath = ref(null)
 const advancedSettingsTextarea = ref(null);
 const configChanged = ref(false)
 const onApplyModal = ref(null)
 const onDeleteModal = ref(null)
 
 const validationOk = ref(true);
-const invalidFlowExportEndpoint = ref(false)
-const invalidCollector = ref(false)
+const invalidInterface = ref(false)
+const invalidStoragePath = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
-const NetFlowVersions = ref(['5', '9', '10'])
 
 /* Charts */
 const chartsAvailable = ref(false);
-const chart1Series = ref([{ name: 'Bytes', data: [] }])
-const chart2Series = ref([{ name: 'Flows', data: [] }])
+const chart1Series = ref([{ name: 'RXBytes', data: [] }])
+const chart2Series = ref([{ name: 'IOBytes', data: [] }])
 
 /* Update service switch state */
 async function updateServiceSwitch() {
@@ -185,9 +184,27 @@ async function loadConfiguration() {
 		switch (option.name) {
 			case '-i':
 			case '--interface':
-				if (option.value && option.value != 'none') {
+				if (option.value) {
 					selectedInterfaces.value.push(option.value);
 				}
+				break;
+			case '-o':
+			case '--dump-directory':
+				if (option.value) {
+					if (storagePath.value.value) {
+						appendAdvancedSettings(option.name, option.value);
+					} else {
+						storagePath.value.value = option.value;
+					}
+				}
+				break;
+			case '-A':
+			case '--timeline-dir':
+				appendAdvancedSettings(option.name, option.value);
+				break;
+			case '-I':
+			case '--index':
+				appendAdvancedSettings(option.name, option.value);
 				break;
 			default:
 				appendAdvancedSettings(option.name, option.value);
@@ -205,7 +222,20 @@ function computeConfiguration() {
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
 	if (selectedInterfaces.value && selectedInterfaces.value != '') {
-		form_configuration.push({ name: '-i', value: selectedInterfaces.value });
+		form_configuration.push({ name: '--interface', value: selectedInterfaces.value });
+	}
+	
+	if (storagePath.value.value) {
+		form_configuration.push({ name: '--dump-directory', value: storagePath.value.value });
+		const timelineDefined = advanced_configuration.find(element => (element.name == '-A' || element.name == '--timeline-dir'));
+		if (!timelineDefined) {
+			form_configuration.push({ name: '--timeline-dir', value: storagePath.value.value });
+		}
+	}
+
+	const indexDefined = advanced_configuration.find(element => (element.name == '-I' || element.name == '--index'));
+	if (!indexDefined) {
+		form_configuration.push({ name: '--index' });
 	}
 
 	const configuration = form_configuration.concat(advanced_configuration);
@@ -216,25 +246,6 @@ function computeConfiguration() {
 function computeMetadata() {
 	let metadata = {};
 	return metadata;
-}
-
-async function saveConfiguration() {
-	const configuration = computeConfiguration();
-	const metadata = computeMetadata();
-
-	if (stubMode()) {
-		console.log(configuration);
-	} else {
-		await writeConfigurationFile(serviceName, configuration, props.name);
-		await writeMetadata(serviceName, metadata, props.name);
-	}
-
-	/* Update configChanged with timeout to handle async updates triggering change event */
-	setTimeout(() => (configChanged.value = false), 100);
-
-	if (n2diskEnabled.value) {
-		onApplyModal.value.show();
-	}
 }
 
 async function deleteConfiguration() {
@@ -275,7 +286,7 @@ function onServiceSwitchChange() {
 	*/
 }
 
-function onConfigChange(e) {
+function onConfigChange(e, checkEmpty) {
 	/* Use @change="event => onConfigChange(event)" to pass the event */
 	/* if (e) { 
 	 * 	console.log(e);
@@ -283,32 +294,52 @@ function onConfigChange(e) {
 	 * } */
 
 	/* Reset */
-	invalidFlowExportEndpoint.value = false;
-	invalidCollector.value = false;
+	invalidInterface.value = false;
+	invalidStoragePath.value = false;
 
 	/* Validate */
-	if (flowExportSwitch.value) {
-		const endpoint = flowExportEndpoint.value.value;
-		if (endpoint && !isEndpoint(endpoint)) {
-			invalidFlowExportEndpoint.value = true;
-		}
+	const interfaceName = selectedInterfaces.value;
+	if (checkEmpty && !interfaceName) {
+		invalidInterface.value = true;
 	}
 
-	if (collectorSwitch.value) {
-		const address = collector.value.value;
-		if (address && !isIPPort(address)) {
-			invalidCollector.value = true;
-		}
+	const path = storagePath.value.value;
+	if ((checkEmpty && !path) || (path && !isValidPath(path))) {
+		invalidStoragePath.value = true;
 	}
-
 	
 	/* Update global validation flag */
 	validationOk.value =
-		!invalidFlowExportEndpoint.value &&
-		!invalidCollector.value;
+		!invalidStoragePath.value &&
+		!invalidInterface.value;
 
 	/* Set config changed */
 	configChanged.value = true;
+}
+
+async function saveConfiguration() {
+
+	onConfigChange({}, true);
+	if (validationOk.value == false) {
+		return;
+	}
+
+	const configuration = computeConfiguration();
+	const metadata = computeMetadata();
+
+	if (stubMode()) {
+		console.log(configuration);
+	} else {
+		await writeConfigurationFile(serviceName, configuration, props.name);
+		await writeMetadata(serviceName, metadata, props.name);
+	}
+
+	/* Update configChanged with timeout to handle async updates triggering change event */
+	setTimeout(() => (configChanged.value = false), 100);
+
+	if (n2diskEnabled.value) {
+		onApplyModal.value.show();
+	}
 }
 
 async function updateCharts() {
@@ -321,11 +352,10 @@ async function updateCharts() {
 		 * filteredPkts
 		 * receivedBytes
 		 * droppedPkts
-		 * exportedFlows
 		 */
 
 		chart1Series.value[0].data = data['receivedBytes'];
-		chart2Series.value[0].data = data['exportedFlows'];
+		chart2Series.value[0].data = data['dumpedBytes'];
 
 		chartsAvailable.value = true;
 	}

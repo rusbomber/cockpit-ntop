@@ -29,13 +29,13 @@
 
 		<div class="form-group" v-show="mode == 'probe'">
 			<h5>Interface</h5>
-			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
+			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" @change="onConfigChange()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
 
 		<div class="form-group" v-show="mode == 'collector'">
 			<h5>Collection Port</h5>
-			<input type="text" class="form-control" :class="{ 'border border-danger': false }" ref="flowCollectionPort" @change="onConfigChange()" />
+			<input type="text" class="form-control" :class="{ 'border border-danger': invalidCollectionPort }" ref="flowCollectionPort" @change="onConfigChange()" />
 			<small class="form-text text-muted">Netflow/sFlow collection port.</small>
 		</div>
 
@@ -175,6 +175,7 @@ const onDeleteModal = ref(null)
 
 const validationOk = ref(true);
 const invalidFlowExportEndpoint = ref(false)
+const invalidCollectionPort = ref(false)
 const invalidCollector = ref(false)
 
 /* Data */
@@ -401,9 +402,17 @@ function onConfigChange(e) {
 
 	/* Reset */
 	invalidFlowExportEndpoint.value = false;
+	invalidCollectionPort.value = false;
 	invalidCollector.value = false;
 
 	/* Validate */
+	if (flowCollectionPort.value.value) {
+		const port = flowCollectionPort.value.value;
+		if (isNaN(port)) {
+			invalidCollectionPort.value = true;
+		}
+	}
+
 	if (flowExportSwitch.value) {
 		const endpoint = flowExportEndpoint.value.value;
 		if (endpoint && !isEndpoint(endpoint)) {
@@ -422,6 +431,7 @@ function onConfigChange(e) {
 	/* Update global validation flag */
 	validationOk.value =
 		!invalidFlowExportEndpoint.value &&
+		!invalidCollectionPort.value &&
 		!invalidCollector.value;
 
 	/* Set config changed */
