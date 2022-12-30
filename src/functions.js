@@ -3,6 +3,11 @@ export function stubMode() {
 	return false;
 }
 
+export function isValidInstanceName(str) {
+	var pattern = new RegExp('^([a-z\\d-]*[a-z\\d])*$','i');
+	return pattern.test(str);
+}
+
 export function isEndpoint(str) {
 	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
 		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname

@@ -14,6 +14,11 @@ install: build
 	mkdir /usr/share/cockpit/nprobe
 	cp -r plugins/nprobe/* /usr/share/cockpit/nprobe/
 	cp -r dist/* /usr/share/cockpit/nprobe/
+	# n2disk plugin
+	rm -rf /usr/share/cockpit/n2disk
+	mkdir /usr/share/cockpit/n2disk
+	cp -r plugins/n2disk/* /usr/share/cockpit/n2disk/
+	cp -r dist/* /usr/share/cockpit/n2disk/
 	# branding
 	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
 

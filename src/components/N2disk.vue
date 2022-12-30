@@ -31,7 +31,7 @@
 </nav>
 
 <template  v-for="instance in instances" >
-	<NprobeConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
+	<N2diskConf :name="instance.name" :label="instance.label" v-if="tab == instance.name" />
 </template>
 <LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 <div v-if="tab != 'license' && instances.length == 0">
@@ -43,50 +43,11 @@
 		Add {{ productLabel }} Instance
 	</template>
 	<template v-slot:body>
-
 		<div class="form-group">
 			<h5>Instance Name</h5>
 			<input type="text" class="form-control" :class="{ 'border border-danger': invalidInstanceName }" ref="instanceName" @change="onModalChange()" />
 			<small class="form-text text-muted">Name for the new instance. Only letters and numbers are allowed.</small>
 		</div>
-
-		<div class="form-group">
-			<h5>Mode</h5>
-		</div>
-
-		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'probe' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'probe'; onModalChange()">
-			<div class="card-body">
-				<div class="form-group wizard-form-group">
-					<h5><font-awesome-icon icon="fa-solid fa-ethernet" /> Probe</h5>
-					<small class="form-text text-muted">Capture traffic from a Network interface (mirror).</small>
-				</div>
-			</div>
-			</a>
-		</div>
-
-		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'collector' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'collector'; onModalChange()">
-			<div class="card-body">	
-				<div class="form-group wizard-form-group">
-					<h5><font-awesome-icon icon="fa-solid fa-bezier-curve" /> Collector</h5>
-					<small class="form-text text-muted">Collect Netflow from a router or switch.</small>
-				</div>
-			</div>
-			</a>
-		</div>
-
-		<div class="card w-100 wizard-card" :class="{ 'wizard-selected': instanceMode == 'custom' }">
-			<a class="wizard-link" href="#" @click="instanceMode = 'custom'; onModalChange()">
-			<div class="card-body">	
-				<div class="form-group wizard-form-group">
-					<h5><font-awesome-icon icon="fa-solid fa-file-lines" /> Custom</h5>
-					<small class="form-text text-muted">Advanced - create a configuration from scratch.</small>
-				</div>
-			</div>
-			</a>
-		</div>
-
 	</template>
 	<template v-slot:footer>
 		<button class="btn btn-primary" @click="createInstance(); createInstanceModal.close()" :disabled="!validationOk">Create</button>
@@ -107,20 +68,18 @@
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList } from "../functions";
-import NprobeConf from './NprobeConf.vue'
+import N2diskConf from './N2diskConf.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
 
-const productName = ref("nprobe")
-const productLabel = ref("nProbe")
+const productName = ref("n2disk")
+const productLabel = ref("n2disk")
 
 const installed = ref(false)
 
 const tab = ref("")
 
 const createInstanceModal = ref(null)
-
-const instanceMode = ref("")
 
 const instances = ref([])
 
@@ -139,18 +98,7 @@ onBeforeMount(async () => {
 	if (stubMode()) {
 		instances.value.push({
 			name: 'SampleInterface',
-			label: 'SampleInterface',
-			mode: 'probe'
-		});
-		instances.value.push({
-			name: 'SampleNetFlow',
-			label: 'SampleNetFlow',
-			mode: 'collector'
-		});
-		instances.value.push({
-			name: 'SampleCustom',
-			label: 'SampleCustom',
-			mode: 'custom'
+			label: 'SampleInterface'
 		});
 	} else {
 		const names = await getConfigurationFileList(productName.value);
@@ -164,8 +112,7 @@ onBeforeMount(async () => {
 
 			instances.value.push({ 
 				name: name,
-				label: label,
-				mode: "custom" //TODO
+				label: label
 			});
 		});
 	}
@@ -192,7 +139,7 @@ function onModalChange(e) {
 	}
 	
 	/* Update global validation flag */
-	validationOk.value = name && instanceMode.value && !invalidInstanceName.value;
+	validationOk.value = name && !invalidInstanceName.value;
 }
 
 function createInstance() {
@@ -207,14 +154,12 @@ function createInstance() {
 	/* Add instance */
 	instances.value.push({
 		name: name,
-		label: name,
-		mode: instanceMode.value
+		label: name
 	});
 
 	tab.value = name;
 
 	/* Reset modal */
 	instanceName.value.value = '';
-	instanceMode.value = '';
 }
 </script>

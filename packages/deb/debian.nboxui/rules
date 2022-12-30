@@ -57,6 +57,10 @@ binary-arch: build install
 	mkdir -p ./debian/nboxui/usr/share/cockpit/nprobe
 	cp -vr ../../plugins/nprobe/* ./debian/nboxui/usr/share/cockpit/nprobe/
 	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/nprobe/
+	# n2disk
+	mkdir -p ./debian/nboxui/usr/share/cockpit/n2disk
+	cp -vr ../../plugins/n2disk/* ./debian/nboxui/usr/share/cockpit/n2disk/
+	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/n2disk/
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

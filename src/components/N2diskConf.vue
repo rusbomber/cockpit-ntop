@@ -19,7 +19,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="nprobeSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': nprobeEnabled && !nprobeActive }" />
+			<Toggle v-model="n2diskSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': n2diskEnabled && !n2diskActive }" />
 		</div>
 	</div>
 
@@ -27,55 +27,16 @@
 
 		<!-- <p class="card-text">Sample text.</p>-->
 
-		<div class="form-group" v-show="mode == 'probe'">
+		<div class="form-group">
 			<h5>Interface</h5>
 			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
 
-		<div class="form-group" v-show="mode == 'collector'">
-			<h5>Collection Port</h5>
-			<input type="text" class="form-control" :class="{ 'border border-danger': false }" ref="flowCollectionPort" @change="onConfigChange()" />
-			<small class="form-text text-muted">Netflow/sFlow collection port.</small>
-		</div>
-
-		<div class="form-group" v-show="mode != 'custom'">
-			<h5>Flow Export to ntopng</h5>
-			<Toggle v-model="flowExportSwitch" @change="onConfigChange()" />
-		</div>
-
-		<div class="form-floating collapse" :class="{ 'show': flowExportSwitch }">
-			<div class="form-group" v-show="mode != 'custom'">
-				<h5>Export Endpoint</h5>
-				<input type="text" class="form-control" :class="{ 'border border-danger': invalidFlowExportEndpoint }" ref="flowExportEndpoint" @change="onConfigChange()" />
-				<small class="form-text text-muted">Flow export endpoint (e.g. zmq://*:5556) to deliver flows to ntopng.</small>
-			</div>
-		</div>
-
-		<div class="form-group" v-show="mode != 'custom'">
-			<h5>NetFlow Export</h5>
-			<Toggle v-model="collectorSwitch" @change="onConfigChange()" />
-		</div>
-
-		<div class="form-floating collapse" :class="{ 'show': collectorSwitch }">
-			<div class="form-group" v-show="mode != 'custom'">
-				<h5>NetFlow Collector</h5>
-				<input type="text" class="form-control" :class="{ 'border border-danger': invalidCollector }" ref="collector" @change="onConfigChange()" />
-				<small class="form-text text-muted">Collector address (e.g. 192.168.1.1:2055) to deliver NetFlow.</small>
-			</div>
-
-			<div class="form-group" v-show="mode != 'custom'">
-				<h5>NetFlow Version</h5>
-				<Multiselect v-model="selectedNetFlowVersion" :options="NetFlowVersions" mode="single" placeholder="Select the version" :close-on-select="true" ref="NetFlowVersionMultiselect" @change="onConfigChange()" />
-				<small class="form-text text-muted"></small>
-			</div>
-		</div>
-
-
 		<div class="form-group">
 			<a class="btn" data-bs-toggle="collapse" href="#collapseAdvancedSettings" role="button" aria-expanded="false" aria-controls="collapseAdvancedSettings"><h5>Advanced Settings <font-awesome-icon icon="fa-solid fa-angle-down" /></h5></a>
-			<div class="form-floating" :class="{ 'collapse': mode != 'custom' }" id="collapseAdvancedSettings">
-				<textarea class="form-control input-textarea" placeholder="Advanced settings" id="advancedSettingsTextareaId" :class="{ 'big-input-textarea': mode == 'custom' }"  ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
+			<div class="form-floating collapse" id="collapseAdvancedSettings">
+				<textarea class="form-control input-textarea" placeholder="Advanced settings" id="advancedSettingsTextareaId" ref="advancedSettingsTextarea" @change="onConfigChange()"></textarea>
 				<label for="advancedSettingsTextareaId">key = value</label>
 			</div>
 		</div>
@@ -141,19 +102,15 @@ const props = defineProps({
 	label: {
 		type: String,
 		required: true
-	},
-	mode: {
-		type: String,
-		required: true
 	}
 })
 
-const serviceName = "nprobe";
+const serviceName = "n2disk";
 
 /* Service status */
-const nprobeActive = ref(false);
-const nprobeEnabled = ref(false);
-const nprobeSwitch = ref(false)
+const n2diskActive = ref(false);
+const n2diskEnabled = ref(false);
+const n2diskSwitch = ref(false)
 
 /* Empty configuration */
 const selectedInterfaces = ref([]);
@@ -190,15 +147,15 @@ const chart2Series = ref([{ name: 'Flows', data: [] }])
 async function updateServiceSwitch() {
 	/* Service status */
 	if (stubMode()) {
-		nprobeActive.value = true;
-		nprobeEnabled.value = true;
+		n2diskActive.value = true;
+		n2diskEnabled.value = true;
 	} else {
-		nprobeActive.value = await isServiceActive(serviceName, props.name);
-		nprobeEnabled.value = await isServiceEnabled(serviceName, props.name);
+		n2diskActive.value = await isServiceActive(serviceName, props.name);
+		n2diskEnabled.value = await isServiceEnabled(serviceName, props.name);
 	}
 
-	if (nprobeEnabled.value) {
-		nprobeSwitch.value = true;
+	if (n2diskEnabled.value) {
+		n2diskSwitch.value = true;
 	}
 
 }
@@ -217,71 +174,24 @@ async function loadConfiguration() {
 	/* Read configuration file, if any */
 	if (stubMode()) {
 		configuration = [ 
-			{ name: '-i', value: 'eno1' }, 
-			{ name: '--ntopng', value: 'zmq://*:5556' } 
+			{ name: '-i', value: 'eno1' } 
 		];
 	} else { 
 		metadata = await readMetadata(serviceName, props.name);
 		configuration = await readConfigurationFile(serviceName, props.name);
-
-		if (metadata.mode) {
-			props.mode = metadata.mode;
-		}
-	}
-
-	if (!props.mode) {
-		props.mode = 'custom';
 	}
 
 	configuration.forEach(function (option) {
-		if (props.mode == 'custom') {
-			appendAdvancedSettings(option.name, option.value);
-		} else {
-			switch (option.name) {
-				case '-i':
-				case '--interface':
-					if (option.value && option.value != 'none') {
-						selectedInterfaces.value.push(option.value);
-					}
-					break;
-				case '-3':
-				case '--collector-port':
-					if (option.value && option.value != 'none') {
-						flowCollectionPort.value.value = option.value;
-					}
-					break;
-				case '-n':
-				case '--collector':
-					if (option.value && option.value != 'none') { 
-						collectorSwitch.value = true;
-						collector.value.value = option.value;
-					}
-					break;
-				case '-V':
-				case '--flow-version':
-					if (option.value) { 
-						selectedNetFlowVersion.value.push(option.value);
-					}
-					break;
-				case '--zmq':
-				case '--ntopng':
-					if (option.value) {
-						if (option.value.startsWith("tcp://") ||
-						    option.value.startsWith("zmq://") ||
-						    option.value.startsWith("kafka://")) {
-							if (flowExportEndpoint.value.value) {
-								appendAdvancedSettings(option.name, option.value);
-							} else {
-								flowExportSwitch.value = true;
-								flowExportEndpoint.value.value = option.value;
-							}
-						}
-					}
-					break;
-				default:
-					appendAdvancedSettings(option.name, option.value);
-					break;
-			}
+		switch (option.name) {
+			case '-i':
+			case '--interface':
+				if (option.value && option.value != 'none') {
+					selectedInterfaces.value.push(option.value);
+				}
+				break;
+			default:
+				appendAdvancedSettings(option.name, option.value);
+				break;
 		}
 	});
 
@@ -294,34 +204,8 @@ function computeConfiguration() {
 
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
-	if (props.mode == 'probe') {
-		if (selectedInterfaces.value && selectedInterfaces.value != '') {
-			form_configuration.push({ name: '-i', value: selectedInterfaces.value });
-		}
-	}
-
-	if (props.mode == 'collector') {
-		if (flowCollectionPort.value && flowCollectionPort.value != '') {
-			form_configuration.push({ name: '-3', value: flowCollectionPort.value.value });
-		}
-	}
-
-	if (props.mode != 'custom') {
-		if (flowExportSwitch.value && flowExportEndpoint.value.value) {
-			form_configuration.push({ name: '--ntopng', value: flowExportEndpoint.value.value });
-			const templateDefined = advanced_configuration.find(element => element.name == '-T');
-			if (!templateDefined) {
-				form_configuration.push({ name: '-T', value: '@NTOPNG@' });
-			}
-		}
-
-		if (collectorSwitch.value && collector.value.value) {
-			form_configuration.push({ name: '--collector', value: collector.value.value });
-
-			if (selectedNetFlowVersion.value && selectedNetFlowVersion.value != '') {
-				form_configuration.push({ name: '-V', value: selectedNetFlowVersion.value });
-			}
-		}
+	if (selectedInterfaces.value && selectedInterfaces.value != '') {
+		form_configuration.push({ name: '-i', value: selectedInterfaces.value });
 	}
 
 	const configuration = form_configuration.concat(advanced_configuration);
@@ -331,7 +215,6 @@ function computeConfiguration() {
 
 function computeMetadata() {
 	let metadata = {};
-	metadata.mode = props.mode;
 	return metadata;
 }
 
@@ -349,7 +232,7 @@ async function saveConfiguration() {
 	/* Update configChanged with timeout to handle async updates triggering change event */
 	setTimeout(() => (configChanged.value = false), 100);
 
-	if (nprobeEnabled.value) {
+	if (n2diskEnabled.value) {
 		onApplyModal.value.show();
 	}
 }
@@ -380,9 +263,9 @@ onBeforeMount(async () => {
 /* On service switch event: toggle service status */
 function onServiceSwitchChange() {
 	if (stubMode()) {
-		console.log("Switching " + serviceName + " " + nprobeSwitch.value);
+		console.log("Switching " + serviceName + " " + n2diskSwitch.value);
 	} else {
-		toggleService(serviceName, nprobeSwitch.value, props.name);
+		toggleService(serviceName, n2diskSwitch.value, props.name);
 	}
 
 	/* This is not required as there is a setInterval

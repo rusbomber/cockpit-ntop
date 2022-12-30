@@ -2,8 +2,8 @@
     "version": 0,
 
     "menu": {
-        "ntopng": {
-            "label": "ntopng",
+        "n2disk": {
+            "label": "n2disk",
             "path": "index.html"
         }
     }
