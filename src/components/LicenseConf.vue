@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, getLSBRelease, readFile, writeFile, getApplicationVersion } from "../functions";
+import { stubMode, getLSBRelease, readFile, writeFile, getApplicationVersion, getLicensedN2diskBinary } from "../functions";
 import Modal from './Modal.vue'
 
 const licenseKeyTextArea = ref(null)
@@ -102,7 +102,12 @@ async function writeLicense() {
 }
 
 async function readSystemInformation() {
-	const info = await getApplicationVersion(props.name);
+	let binary = props.name;
+
+	if (binary == 'n2disk')
+		binary = await getLicensedN2diskBinary();
+
+	const info = await getApplicationVersion(binary);
 
 	//console.log(info);
 

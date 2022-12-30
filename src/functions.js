@@ -49,6 +49,27 @@ export async function getNetworkInterfaces() {
 		return [];
 }
 
+export async function getLicensedN2diskBinary() {
+	let output = "";
+
+	let binary = "n2disk1g";
+	await cockpit.spawn([binary, "--check-license"])
+	.then(function (data) { output = data; })
+	.catch(function (exception) {});
+	if (output.includes('Ok') || output.includes('Limited'))
+		return binary;
+
+	binary = "n2disk5g";
+	await cockpit.spawn([binary, "--check-license"])
+	.then(function (data) { output = data; })
+	.catch(function (exception) {});
+	if (output.includes('Ok') || output.includes('Limited'))
+		return binary;
+
+	binary = "n2disk";
+	return binary;
+}
+
 export async function getApplicationVersion(name) {
 	let info;
 

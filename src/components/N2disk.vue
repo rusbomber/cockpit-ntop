@@ -67,7 +67,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList } from "../functions";
+import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList, getLicensedN2diskBinary } from "../functions";
 import N2diskConf from './N2diskConf.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
