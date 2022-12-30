@@ -7,7 +7,7 @@
 			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
 		</div>
 		<div class="col-sm">
-			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="fps"></TSChart>
+			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="bps"></TSChart>
 		</div>
 	</div>
 </div>
@@ -345,7 +345,11 @@ async function saveConfiguration() {
 async function updateCharts() {
 	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
 
-	if (data && data['receivedBytes'] && data['receivedPkts']) {
+	if (data && 
+	    data['receivedBytes'] && 
+	    data['receivedBytes'].length > 1 && 
+	    data['dumpedBytes'] && 
+	    data['dumpedBytes'].length > 1) {
 		/*
 		 * Available RRDs:
 		 * receivedPkts

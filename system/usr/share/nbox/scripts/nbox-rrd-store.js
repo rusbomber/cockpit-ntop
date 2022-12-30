@@ -8,7 +8,7 @@ const exec = promisify(require('child_process').exec)
 const fs = require('fs')
 
 async function get_running_services(application) {
-	const cmd = "systemctl list-units  --type=service  --state=running | grep nprobe | tr -d ' ' | cut -d '.' -f 1";
+	const cmd = "systemctl list-units  --type=service  --state=running | grep " + application + " | tr -d ' ' | cut -d '.' -f 1";
 	const output = await exec(cmd);
 	return output.stdout.trim().split(/\r?\n/);
 }
@@ -36,7 +36,7 @@ async function get_service_stats(pid) {
 	return stats
 }
 
-async function update_rrd(application, instance, stats) {
+async function update_rrd(application, instance, metrics, stats) {
 	const volume = "/storage";
 	const dir = volume + "/rrd/" + application;
 	const path = dir + "/" + instance + ".rrd";
@@ -45,28 +45,25 @@ async function update_rrd(application, instance, stats) {
 	let output = await exec(cmd);
 
 	if (!fs.existsSync(path)) {
-		cmd = "rrdtool create --step 10 " + path + " " +
-			"DS:receivedPkts:DERIVE:30:0:U " +
-			"DS:filteredPkts:DERIVE:30:0:U " +
-			"DS:droppedPkts:DERIVE:30:0:U " +
-			"DS:receivedBytes:DERIVE:30:0:U " +
-			"DS:exportedFlows:DERIVE:30:0:U " +
-			"RRA:AVERAGE:0.5:1:180 " +
-			"RRA:AVERAGE:0.5:30:600";
+		cmd = "rrdtool create --step 10 " + path + " ";
+		for (const metric of metrics) {
+			cmd += "DS:" + metric + ":DERIVE:30:0:U ";
+		}
+		cmd += "RRA:AVERAGE:0.5:1:180 ";
+		cmd += "RRA:AVERAGE:0.5:30:600";
 		output = await exec(cmd);
 	}
 
-	cmd = "rrdtool update " + path + " " +
-		"N:" + stats['receivedPkts'] +
-		 ":" + stats['filteredPkts'] +
-		 ":" + stats['droppedPkts'] +
-		 ":" + stats['receivedBytes'] +
-		 ":" + stats['exportedFlows'];
+	cmd = "rrdtool update " + path + " N";
+	for (const metric of metrics) {
+		cmd += ":" + stats[metric];
+	}
 	output = await exec(cmd);
 }
 
 async function dump_nprobe_stats() {
 	const application = "nprobe";
+	const metrics = ['receivedPkts', 'filteredPkts', 'droppedPkts', 'receivedBytes', 'exportedFlows'];
 
 	const instances = await get_running_services(application);
 	for (const instance of instances) {
@@ -96,8 +93,47 @@ async function dump_nprobe_stats() {
 			}
 		})
 
-		update_rrd(application, instance, stats);
+		update_rrd(application, instance, metrics, stats);
+	}
+}
+
+async function dump_n2disk_stats() {
+	const application = "n2disk";
+	const metrics = ['receivedPkts', 'filteredPkts', 'droppedPkts', 'receivedBytes', 'dumpedBytes'];
+
+	const instances = await get_running_services(application);
+	for (const instance of instances) {
+		const pid = await get_service_pid(instance);
+
+		//console.log("--- Instance " + instance  + " has PID = " + pid);
+
+		const service_stats = await get_service_stats(pid);
+
+		let stats = [];
+		service_stats.forEach(function(item) {
+			//console.log(item.name + " => " + item.value);
+			switch (item.name) {
+				case 'Packets':
+					stats['receivedPkts'] = item.value;
+					break;
+				case 'Filtered':
+					stats['filteredPkts'] = item.value;
+					break;
+				case 'Dropped':
+					stats['droppedPkts'] = item.value;
+					break;
+				case 'Bytes':
+					stats['receivedBytes'] = item.value; 
+					break;
+				case 'DumpedBytes':
+					stats['dumpedBytes'] = item.value;
+					break;
+			}
+		})
+
+		update_rrd(application, instance, metrics, stats);
 	}
 }
 
 setInterval(dump_nprobe_stats, 5000);
+setInterval(dump_n2disk_stats, 5000);

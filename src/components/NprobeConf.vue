@@ -441,7 +441,11 @@ function onConfigChange(e) {
 async function updateCharts() {
 	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
 
-	if (data && data['receivedBytes'] && data['receivedPkts']) {
+	if (data && 
+	    data['receivedBytes'] &&
+	    data['receivedBytes'].length > 1 &&
+	    data['receivedPkts'] &&
+	    data['receivedPkts'].length > 1) {
 		/*
 		 * Available RRDs:
 		 * receivedPkts
