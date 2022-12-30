@@ -88,7 +88,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath } from "../functions";
+import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath, createPath } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
@@ -307,7 +307,7 @@ function onConfigChange(e, checkEmpty) {
 	if ((checkEmpty && !path) || (path && !isValidPath(path))) {
 		invalidStoragePath.value = true;
 	}
-	
+
 	/* Update global validation flag */
 	validationOk.value =
 		!invalidStoragePath.value &&
@@ -330,8 +330,15 @@ async function saveConfiguration() {
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
+		/* Write configuration and metadata */
 		await writeConfigurationFile(serviceName, configuration, props.name);
 		await writeMetadata(serviceName, metadata, props.name);
+
+		/* Create n2disk folder */
+		const storageDefined = configuration.find(element => (element.name == '-O' || element.name == '--dump-directory'));
+		if (storageDefined) {
+			await createPath(storageDefined.value /* path */, "n2disk" /* user */)
+		}
 	}
 
 	/* Update configChanged with timeout to handle async updates triggering change event */

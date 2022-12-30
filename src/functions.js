@@ -9,7 +9,13 @@ export function isValidInstanceName(str) {
 }
 
 export function isValidPath(path) {
-	return true; //TODO
+	var pattern = new RegExp('^(\/[a-zA-Z0-9_-]+)+$','i');
+	return pattern.test(path);
+}
+
+export async function createPath(path, owner) {
+	await cockpit.spawn(["mkdir", "-p", path], {superuser:"require"});
+	await cockpit.spawn(["chown", owner, path], {superuser:"require"});
 }
 
 export function isEndpoint(str) {
