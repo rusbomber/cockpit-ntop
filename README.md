@@ -6,7 +6,7 @@
 - ntopng
 
 ```sh
-apt install cockpit
+apt install cockpit npm
 ```
 
 ## Project Setup
