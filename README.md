@@ -3,13 +3,17 @@
 ## Prerequisites
 
 - cockpit
-- ntopng
-
+- cockpit-navigator
+- npm (development only)
+- ntop suite (ntopng, nprobe, n2disk)
+ 
 ```sh
-apt install cockpit npm
+apt install cockpit cockpit-navigator npm
 ```
 
-## Project Setup
+## Development
+
+### Project Setup
 
 ```sh
 npm install
@@ -21,13 +25,21 @@ npm install
 npm run dev -- --host
 ```
 
-### Compile and Minify for Production
+### Compile and Minify
 
 ```sh
 npm run build
 ```
 
-### Install nBox UI Plugins in Cockpit
+### Compile and Install in Cockpit
+
+```sh
+sudo make build-install
+```
+
+## Production
+
+### Install in Cockpit
 
 ```sh
 sudo make install
