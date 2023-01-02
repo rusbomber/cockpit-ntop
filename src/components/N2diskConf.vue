@@ -279,7 +279,7 @@ function computeConfiguration() {
 		form_configuration.push({ name: '--index' });
 	}
 
-	form_configuration.push({ name: '--disk-limit',   value: diskLimit.value });
+	form_configuration.push({ name: '--disk-limit',   value: diskLimit.value + "%" });
 	form_configuration.push({ name: '--max-file-len', value: fileSize.value });
 
 	const bufferLenDefined = advanced_configuration.find(element => (element.name == '-b' || element.name == '--buffer-len'));
