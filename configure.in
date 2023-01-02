@@ -26,6 +26,9 @@ if test -f "/etc/centos-release"; then
   fi
 fi
 
+`git submodule init`
+`git submodule update --remote`
+
 EXTRA_DEPS=""
 
 AC_SUBST(DATE)
