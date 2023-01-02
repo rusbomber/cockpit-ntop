@@ -2,8 +2,8 @@
 build:
 	npm install
 	npm run build
-
-install: build
+ 
+dist-install:
 	# ntopng plugin
 	rm -rf /usr/share/cockpit/ntopng
 	mkdir /usr/share/cockpit/ntopng
@@ -21,6 +21,10 @@ install: build
 	cp -r dist/* /usr/share/cockpit/n2disk/
 	# branding
 	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
+
+build-install: build dist-install
+
+install: dist-install
 
 build-deb:
 	cd packages/deb/; make
