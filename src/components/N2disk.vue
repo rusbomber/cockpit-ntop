@@ -20,6 +20,9 @@
 			<li class="nav-item">
 				<a class="nav-link" href="#" @click="createInstanceModal.show()"><font-awesome-icon icon="fa-solid fa-plus" class="fix-fa-vertical-align" title="Add Instance" /></a>
 			</li>
+			<li class="nav-item" :class="{ 'active': tab == 'extract'}">
+				<a class="nav-link" href="#" @click="tab = 'extract'">Extractions</a>
+			</li>
 			<li class="nav-item" :class="{ 'active': tab == 'license'}">
 				<a class="nav-link" href="#" @click="tab = 'license'">License</a>
 			</li>
@@ -33,6 +36,7 @@
 <template  v-for="instance in instances" >
 	<N2diskConf :name="instance.name" :label="instance.label" v-if="tab == instance.name" />
 </template>
+<N2diskExtract :name="productName" :label="productLabel" v-show="tab == 'extract'" />
 <LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 <div v-if="tab != 'license' && instances.length == 0">
 	<br /><center><span><b>{{ productLabel }}</b> has not been configured yet, please create an instance.</span></center>
@@ -69,6 +73,7 @@
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList, getLicensedN2diskBinary } from "../functions";
 import N2diskConf from './N2diskConf.vue'
+import N2diskExtract from './N2diskExtract.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
 

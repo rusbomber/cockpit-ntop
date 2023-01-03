@@ -13,6 +13,10 @@ export function isValidPath(path) {
 	return pattern.test(path);
 }
 
+export function isValidFilter(filter) {
+	return true; //TODO
+}
+
 export async function createPath(path, owner) {
 	await cockpit.spawn(["mkdir", "-p", path], {superuser:"require"});
 	await cockpit.spawn(["chown", owner, path], {superuser:"require"});

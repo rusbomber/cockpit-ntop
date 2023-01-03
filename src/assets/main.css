@@ -96,6 +96,10 @@ body {
   text-decoration: none;
 }
 
+.description-link {
+  text-decoration: none;
+}
+
 .svg-inline--fa {
   width: 1rem;
 }

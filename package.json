@@ -18,6 +18,7 @@
     "@vueform/multiselect": "^2.5.7",
     "@vueform/slider": "^2.1.6",
     "@vueform/toggle": "^2.1.2",
+    "@vuepic/vue-datepicker": "^3.6.4",
     "apexcharts": "^3.36.3",
     "bootstrap": "^5.2.3",
     "is-cidr": "^5.0.2",

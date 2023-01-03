@@ -400,6 +400,10 @@ async function saveConfiguration() {
 }
 
 async function updateCharts() {
+	if (stubMode()) {
+		return;
+	}
+
 	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
 
 	if (data && 
