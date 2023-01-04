@@ -60,7 +60,7 @@
 </Modal>
 
 </div> <!-- installed -->
-<div v-else>
+<div v-if="notInstalled">
 	<br />
 	<center>
 		<h5><b>{{ productLabel }}</b> is not installed!</h5>
@@ -81,6 +81,7 @@ const productName = ref("n2disk")
 const productLabel = ref("n2disk")
 
 const installed = ref(false)
+const notInstalled = ref(false)
 
 const tab = ref("")
 
@@ -98,6 +99,7 @@ onBeforeMount(async () => {
 		installed.value = true;
 	} else {
 		installed.value = await fileExists("/usr/bin/" + productName.value);
+		notInstalled.value = !installed.value;
 	}
 
 	if (stubMode()) {

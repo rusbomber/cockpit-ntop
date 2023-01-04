@@ -35,6 +35,8 @@
 <div class="d-none" id="icon-completed" ><font-awesome-icon icon="fa-solid fa-circle-check"    class="text-success"/></div>
 <div class="d-none" id="icon-processed" ><font-awesome-icon icon="fa-solid fa-user-check"      class="text-primary"/></div>
 <div class="d-none" id="icon-delete"    ><font-awesome-icon icon="fa-solid fa-trash"           class="text-secondary"/></div>
+<div class="d-none" id="icon-folder"    ><font-awesome-icon icon="fa-solid fa-folder-open"     class="text-secondary"/></div>
+<div class="d-none" id="icon-logs"      ><font-awesome-icon icon="fa-solid fa-scroll"          class="text-secondary"/></div>
 
 <!--  New Task Modal -->
 <Modal ref="createTaskModal">
@@ -82,13 +84,13 @@
 
 <Modal ref="onDeleteModal">
 	<template v-slot:title>
-		Delete Extraction
+		Delete Extraction {{ currentTaskID }}
 	</template>
 	<template v-slot:body>
 		Are you sure you want to delete this extraction?
 	</template>
 	<template v-slot:footer>
-		<button class="btn btn-primary" @click="delTask(); onDeleteModal.close()">Confirm</button>
+		<button class="btn btn-primary" @click="delTask()">Confirm</button>
 		<button class="btn btn-secondary" @click="onDeleteModal.close()">Close</button>
 	</template>
 </Modal>
@@ -125,6 +127,8 @@ const props = defineProps({
 
 /* Scheduled Tasks Table */
 const tasksTableData = ref([]);
+
+const currentTaskID = ref("0");
 
 const tasksTableOptions = ref({
 	searching: false,
@@ -174,7 +178,7 @@ const tasksTableColumns = ref([
 		orderable: false,
 		render: function (data, type, row) {
 			if (type === 'display') {
-				return "<a href='#'>" + getIcon("delete") + "</a> " + data;
+				return "<a href='#' onclick='showDeleteModal('" + row.id + "')'>" + getIcon("delete") + "</a> " + data;
 			}
 			return data;
 		},
@@ -223,6 +227,16 @@ function formatSize(value) {
 		return Math.round(value) + " MB";
 }
 
+function taskInfoToTableData(id, status, info) {
+	return {
+		id: id,
+		status: status,
+		creation: info.creation_time,
+		info: info.filter,
+		actions: ""
+	};
+}
+
 async function addTask() {
 	onConfigChange({}, true);
 
@@ -242,25 +256,26 @@ async function addTask() {
 	};
 	const id = await createTask(task_info);
 
+	tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info));
+
 	createTaskModal.value.close();
 }
 
+async function showDeleteModal(id) {
+	currentTaskID.value = id;
+	onDeleteModal.show();
+}
+
 async function delTask() {
-	//TODO
-	//await deleteTask(id)
+	await deleteTask(currentTaskID.value);
+	onDeleteModal.close();
 }
 
 async function updateTasks() {
 	const tasks = await getAllTasks(); 
 
 	const tasks_data = tasks.map((task) => {
-		return {
-			id: task.id,
-			status: task.status,
-			creation: task.info.creation_time,
-			info: task.info.filter,
-			actions: ""
-		};
+		return taskInfoToTableData(task.id, task.status, task.info);
 	});
 
 	tasksTableData.value = tasks_data;

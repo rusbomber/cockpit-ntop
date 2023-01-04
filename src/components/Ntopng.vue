@@ -31,7 +31,7 @@
 <LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 
 </div> <!-- installed -->
-<div v-else>
+<div v-if="notInstalled">
 	<br />
 	<center>
 		<h5><b>ntopng</b> is not installed!</h5>
@@ -47,6 +47,8 @@ import NtopngConf from './NtopngConf.vue'
 import LicenseConf from './LicenseConf.vue'
 
 const installed = ref(false)
+const notInstalled = ref(false)
+
 const instanceName = ref("Main")
 
 const productName = ref("ntopng")
@@ -59,6 +61,7 @@ onBeforeMount(async () => {
 		installed.value = true;
 	} else {
 		installed.value = await fileExists("/usr/bin/ntopng");
+		notInstalled.value = !installed.value;
 	}
 });
 </script>
