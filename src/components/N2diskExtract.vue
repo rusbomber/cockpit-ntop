@@ -178,7 +178,7 @@ const tasksTableColumns = ref([
 		orderable: false,
 		render: function (data, type, row) {
 			if (type === 'display') {
-				return "<a href='#' onclick='showDeleteModal('" + row.id + "')'>" + getIcon("delete") + "</a> " + data;
+				return "<a href='#' id='task_delete_" + row.id + "' task-id='" + row.id + "'>" + getIcon("delete") + "</a> " + data;
 			}
 			return data;
 		},
@@ -256,19 +256,28 @@ async function addTask() {
 	};
 	const id = await createTask(task_info);
 
-	tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info));
+	await updateTasks(); /* tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info)); */
 
 	createTaskModal.value.close();
 }
 
-async function showDeleteModal(id) {
+async function showDeleteModal(e) {
+	const id = this.getAttribute('task-id');
 	currentTaskID.value = id;
-	onDeleteModal.show();
+	onDeleteModal.value.show();
 }
+
+watch([tasksTableData], (cur_value, old_value) => {
+	tasksTableData.value.forEach(function (task) {
+		let delete_link = document.getElementById("task_delete_" + task.id);
+		delete_link.onclick = showDeleteModal;
+	});
+}, { flush: 'post'});
 
 async function delTask() {
 	await deleteTask(currentTaskID.value);
-	onDeleteModal.close();
+	await updateTasks();
+	onDeleteModal.value.close();
 }
 
 async function updateTasks() {
