@@ -7,8 +7,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* FontAwesome icons */
-import { faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
-library.add(faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash)
+import { faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart } from '@fortawesome/free-solid-svg-icons'
+library.add(faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart)
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
