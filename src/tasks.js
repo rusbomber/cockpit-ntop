@@ -58,6 +58,19 @@ export async function createTask(info) {
 	return id;
 }
 
+/* List all task IDs */
+async function listTasks() {
+	const data = await redis('KEYS', 'nbox.tasks:*');
+	const lines = data.split(/\r?\n/);
+	let list = lines.map((line) => {
+		const [prefix, ...value_arr] = line.split(':');
+		const value = value_arr.join(':');
+		return value.trim();
+	});
+	
+	return list;
+}
+
 /* Get task status */
 export async function getTaskStatus(id) {
 	const status = await redis('HGET', 'nbox.tasks:' + id, 'status');
@@ -69,9 +82,24 @@ export async function getTaskStatus(id) {
 /* Get task info */
 export async function getTaskInfo(id) {
 	const info = await redis('HGET', 'nbox.tasks:' + id, 'info');
-	if (into.length == 0)
+	if (info.length == 0)
 		return {};
 	return JSON.parse(atob(info));
+}
+
+export async function getAllTasks() {
+	const tasks = [];
+	const list = await listTasks();
+	for (const id of list) {
+		const status = await getTaskStatus(id);
+		const info = await getTaskInfo(id);
+		tasks.push({
+			id: id,
+			status: status,
+			info: info,
+		});
+	}
+	return tasks;
 }
 
 /* Delete a task */

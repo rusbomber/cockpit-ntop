@@ -7,7 +7,7 @@
 <div class="card w-100">
 	<div class="card-header">
 		<div class="card-title">
-			<h3>Extractions</h3>
+			<h3>Extractions <font-awesome-icon icon="fa-solid fa-magnifying-glass" /></h3>
 		</div>
 		<div class="service-switch">
 			<a class="nav-link" href="#" @click="createTaskModal.show()"><h3><font-awesome-icon icon="fa-solid fa-plus" class="" title="Add Task" /></h3></a>
@@ -88,7 +88,7 @@
 		Are you sure you want to delete this extraction?
 	</template>
 	<template v-slot:footer>
-		<button class="btn btn-primary" @click="deleteTask(); onDeleteModal.close()">Confirm</button>
+		<button class="btn btn-primary" @click="delTask(); onDeleteModal.close()">Confirm</button>
 		<button class="btn btn-secondary" @click="onDeleteModal.close()">Close</button>
 	</template>
 </Modal>
@@ -99,8 +99,8 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath, isValidFilter, createPath } from "../functions";
-import { createTask } from "../tasks.js"
+import { stubMode, isEndpoint, isIPPort, readConfigurationFile, parseConfiguration, writeConfigurationFile, isValidPath, isValidFilter, createPath, getConfigurationFileList } from "../functions";
+import { createTask, getAllTasks, deleteTask } from "../tasks.js"
 import Multiselect from '@vueform/multiselect'
 import Slider from '@vueform/slider'
 import Toggle from '@vueform/toggle'
@@ -174,7 +174,7 @@ const tasksTableColumns = ref([
 		orderable: false,
 		render: function (data, type, row) {
 			if (type === 'display') {
-				return "<a href='#'>" + getIcon("delete") + "</a>";
+				return "<a href='#'>" + getIcon("delete") + "</a> " + data;
 			}
 			return data;
 		},
@@ -229,6 +229,8 @@ async function addTask() {
 	if (!validationOk.value)
 		return;
 
+	await createPath(storagePath.value.value /* path */, "n2disk" /* user */)
+
 	const task_info = {
 		creation_time: Date.now()/1000,
 		timelines: selectedTimelines.value,
@@ -243,17 +245,45 @@ async function addTask() {
 	createTaskModal.value.close();
 }
 
-async function deleteTask() {
+async function delTask() {
 	//TODO
+	//await deleteTask(id)
 }
 
 async function updateTasks() {
-	//TODO
+	const tasks = await getAllTasks(); 
+
+	const tasks_data = tasks.map((task) => {
+		return {
+			id: task.id,
+			status: task.status,
+			creation: task.info.creation_time,
+			info: task.info.filter,
+			actions: ""
+		};
+	});
+
+	tasksTableData.value = tasks_data;
 }
 
 async function getTimelines() {
-	//TODO
-	return ['/storage/n2disk/eno1'];
+	let timeline_paths = [];
+
+	const names = await getConfigurationFileList("n2disk");
+	names.sort();
+	for (const name of names) {
+		const configuration = await readConfigurationFile("n2disk", name);
+		configuration.forEach(function (option) {
+			switch (option.name) {
+				case '-A':
+				case '--timeline-dir':
+					timeline_paths.push(option.value);
+					break;
+			}
+		});
+	}
+
+	return timeline_paths;
 }
 
 /* Before mount: initialize configuration */
