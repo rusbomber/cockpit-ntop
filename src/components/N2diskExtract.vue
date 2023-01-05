@@ -30,13 +30,14 @@
 </div>
 
 <!-- Datatable icons -->
-<div class="d-none" id="icon-pending"   ><font-awesome-icon icon="fa-solid fa-hourglass-start" class="text-secondary" /></div>
-<div class="d-none" id="icon-running"   ><font-awesome-icon icon="fa-solid fa-spinner"         class="rotate" /></div>
-<div class="d-none" id="icon-completed" ><font-awesome-icon icon="fa-solid fa-circle-check"    class="text-success"/></div>
-<div class="d-none" id="icon-processed" ><font-awesome-icon icon="fa-solid fa-user-check"      class="text-primary"/></div>
-<div class="d-none" id="icon-delete"    ><font-awesome-icon icon="fa-solid fa-trash"           class="text-secondary"/></div>
-<div class="d-none" id="icon-folder"    ><font-awesome-icon icon="fa-solid fa-folder-open"     class="text-secondary"/></div>
-<div class="d-none" id="icon-logs"      ><font-awesome-icon icon="fa-solid fa-scroll"          class="text-secondary"/></div>
+<div class="d-none" id="icon-pending"   ><font-awesome-icon icon="fa-solid fa-hourglass-start"      class="text-secondary" /></div>
+<div class="d-none" id="icon-running"   ><font-awesome-icon icon="fa-solid fa-spinner"              class="rotate"         /></div>
+<div class="d-none" id="icon-completed" ><font-awesome-icon icon="fa-solid fa-circle-check"         class="text-success"   /></div>
+<div class="d-none" id="icon-failed"    ><font-awesome-icon icon="fa-solid fa-triangle-exclamation" class="text-success"   /></div>
+<div class="d-none" id="icon-processed" ><font-awesome-icon icon="fa-solid fa-user-check"           class="text-primary"   /></div>
+<div class="d-none" id="icon-delete"    ><font-awesome-icon icon="fa-solid fa-trash"                class="text-secondary" /></div>
+<div class="d-none" id="icon-folder"    ><font-awesome-icon icon="fa-solid fa-folder-open"          class="text-secondary" /></div>
+<div class="d-none" id="icon-logs"      ><font-awesome-icon icon="fa-solid fa-scroll"               class="text-secondary" /></div>
 
 <!--  New Task Modal -->
 <Modal ref="createTaskModal">
