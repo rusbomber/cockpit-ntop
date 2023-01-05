@@ -28,6 +28,10 @@ if ! /usr/bin/id -u nbox > /dev/null 2>&1; then
 fi
 
 systemctl daemon-reload
+
+systemctl enable nbox-scheduler.service > /dev/null
+systemctl restart nbox-scheduler
+
 systemctl enable nbox-rrd.service > /dev/null
 systemctl restart nbox-rrd
 

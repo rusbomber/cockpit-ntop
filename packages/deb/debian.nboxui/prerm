@@ -9,6 +9,9 @@ upgrade)
 *)
 	systemctl disable nbox-rrd.service > /dev/null
 	systemctl stop nbox-rrd
+
+	systemctl disable nbox-scheduler.service > /dev/null
+	systemctl stop nbox-scheduler
 	;;
 esac
 

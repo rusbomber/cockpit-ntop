@@ -1,6 +1,6 @@
 /*
  * nBox UI - JS Tool for reading RRDs
- * 2022 © ntop
+ * 2022-23 © ntop
  */
 
 const { promisify } = require('util');
