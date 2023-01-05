@@ -29,7 +29,7 @@
 
 		<div class="form-group">
 			<h5>Interface</h5>
-			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" :class="{ 'border border-danger': invalidInterface }" @change="onConfigChange()" />
+			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" :class="{ 'border border-danger': invalidInterface }" @change="onConfigChange()" @select="onInterfaceSelect()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
 
@@ -94,12 +94,31 @@
 		<button class="btn btn-secondary" @click="onApplyModal.close()">Close</button>
 	</template>
 </Modal>
+
+<Modal ref="createInterfaceModal">
+	<template v-slot:title>
+		Add Custom Interface
+	</template>
+	<template v-slot:body>
+		<div class="form-group">
+			<h5>Interface Name</h5>
+			<input type="text" class="form-control" :class="{ 'border border-danger': interfaceModalInvalidInterfaceName }" ref="interfaceModalInterfaceName" @change="onInterfaceModalChange()" />
+			<small class="form-text text-muted">Specify the name of the custom interface to be created.</small>
+		</div>
+	</template>
+	<template v-slot:footer>
+		<button class="btn btn-primary" @click="createInterface(); createInterfaceModal.close()" :disabled="!interfaceModalValidationOk">Create</button>
+		<button class="btn btn-secondary" @click="createInterfaceModal.close()">Close</button>
+	</template>
+</Modal>
+
 </div>
 
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { useToast } from "vue-toastification";
 import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidPath, createPath } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Slider from '@vueform/slider'
@@ -107,6 +126,8 @@ import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
 import TSChart from './TSChart.vue'
+
+const toast = useToast();
 
 /* 
  * Component parameters
@@ -125,6 +146,8 @@ const props = defineProps({
 })
 
 const serviceName = "n2disk";
+
+const customInterfaceLabel = "Add Custom Interface..";
 
 /* Service status */
 const n2diskActive = ref(false);
@@ -155,6 +178,13 @@ const onDeleteModal = ref(null)
 const validationOk = ref(true);
 const invalidInterface = ref(false)
 const invalidStoragePath = ref(false)
+
+/* Custom Interface Modal Form */
+const createInterfaceModal = ref(null)
+const interfaceModalInterfaceName = ref(null)
+
+const interfaceModalValidationOk = ref(true)
+const interfaceModalInvalidInterfaceName = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
@@ -218,6 +248,11 @@ async function loadConfiguration() {
 			case '-i':
 			case '--interface':
 				if (option.value) {
+					const found = interfacesList.value.find(ifname => ifname == option.value);
+					if (!found) {
+						/* Custom interface? Adding to the list.. */
+						interfacesList.value.unshift(option.value);
+					}
 					selectedInterfaces.value.push(option.value);
 				}
 				break;
@@ -318,6 +353,9 @@ onBeforeMount(async () => {
 		let interfaces = await getNetworkInterfaces();
 		interface_names = interfaces.map(info => info.name);
 	}
+
+	interface_names.push(customInterfaceLabel);
+
 	interfacesList.value = interface_names
 });
 
@@ -367,6 +405,48 @@ function onConfigChange(e, checkEmpty) {
 	configChanged.value = true;
 }
 
+/* Called on modal form change to validate the custom interface name */
+function onInterfaceModalChange(e) {
+	/* Reset */
+	interfaceModalInvalidInterfaceName.value = false;
+
+	/* Validate */
+	const name = interfaceModalInterfaceName.value.value;
+	if (name && !isValidInterfaceName(name)) {
+		interfaceModalInvalidInterfaceName.value = true;
+	}
+	
+	/* Update global validation flag */
+	interfaceModalValidationOk.value = name && !interfaceModalInvalidInterfaceName.value;
+}
+
+/* Create a custom interface - called by the modal */
+function createInterface() {
+	const name = interfaceModalInterfaceName.value.value;
+	const found = interfacesList.value.find(ifname => ifname == name);
+	if (found) {
+		toast.warning(name + " already present");
+		return;
+	}
+
+	interfacesList.value.unshift(name);
+	selectedInterfaces.value = name;
+
+	/* Reset modal */
+	interfaceModalInterfaceName.value.value = '';
+}
+
+/* Called on interface selected */
+async function onInterfaceSelect(e) {
+	if (selectedInterfaces.value == customInterfaceLabel) {
+		selectedInterfaces.value = '';
+		createInterfaceModal.value.show();
+		return;
+	}
+
+	onConfigChange(e);
+}
+
 async function saveConfiguration() {
 
 	onConfigChange({}, true);
@@ -393,6 +473,8 @@ async function saveConfiguration() {
 
 	/* Update configChanged with timeout to handle async updates triggering change event */
 	setTimeout(() => (configChanged.value = false), 100);
+
+	toast.success("Configuration saved!");
 
 	if (n2diskEnabled.value) {
 		onApplyModal.value.show();

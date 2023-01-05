@@ -89,11 +89,14 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { useToast } from "vue-toastification";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
 import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
+
+const toast = useToast();
 
 /* 
  * Component parameters
@@ -256,6 +259,8 @@ async function saveConfiguration() {
 
 	/* Update configChanged with timeout to handle async updates triggering change event */
 	setTimeout(() => (configChanged.value = false), 100);
+
+	toast.success("Configuration saved!");
 
 	if (ntopngEnabled.value) {
 		onApplyModal.value.show();

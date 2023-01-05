@@ -133,7 +133,6 @@
 	</template>
 </Modal>
 
-
 </div>
 
 </template>
@@ -235,6 +234,7 @@ async function updateServiceSwitch() {
 
 }
 
+/* Add setting to the advanced text area */
 function appendAdvancedSettings(name, value) {
 	advancedSettingsTextarea.value.value += name;
 	if (value)
@@ -242,6 +242,7 @@ function appendAdvancedSettings(name, value) {
 	advancedSettingsTextarea.value.value += '\n';
 }
 
+/* Load configuration from file */
 async function loadConfiguration() {
 	let configuration = [];
 	let metadata = {};
@@ -326,6 +327,7 @@ async function loadConfiguration() {
 	setTimeout(() => (configChanged.value = false), 100);
 }
 
+/* Read configuration from the form */
 function computeConfiguration() {
 	let form_configuration = []
 
@@ -366,12 +368,14 @@ function computeConfiguration() {
 	return configuration;
 }
 
+/* Compute configuration metadata */
 function computeMetadata() {
 	let metadata = {};
 	metadata.mode = props.mode;
 	return metadata;
 }
 
+/* Save configuration to file */
 async function saveConfiguration() {
 	const configuration = computeConfiguration();
 	const metadata = computeMetadata();
@@ -386,11 +390,14 @@ async function saveConfiguration() {
 	/* Update configChanged with timeout to handle async updates triggering change event */
 	setTimeout(() => (configChanged.value = false), 100);
 
+	toast.success("Configuration saved!");
+
 	if (nprobeEnabled.value) {
 		onApplyModal.value.show();
 	}
 }
 
+/* Delete instance configuration */
 async function deleteConfiguration() {
 	deleteService(serviceName, props.name);
 	deleteMetadata(serviceName, props.name);
@@ -432,6 +439,7 @@ function onServiceSwitchChange() {
 	*/
 }
 
+/* Called on form changes to validate the input */
 function onConfigChange(e) {
 	/* Use @change="event => onConfigChange(event)" to pass the event */
 	/* if (e) { 
@@ -477,6 +485,7 @@ function onConfigChange(e) {
 	configChanged.value = true;
 }
 
+/* Called on modal form change to validate the custom interface name */
 function onInterfaceModalChange(e) {
 	/* Reset */
 	interfaceModalInvalidInterfaceName.value = false;
@@ -488,9 +497,10 @@ function onInterfaceModalChange(e) {
 	}
 	
 	/* Update global validation flag */
-	validationOk.value = name && !interfaceModalInvalidInterfaceName.value;
+	interfaceModalValidationOk.value = name && !interfaceModalInvalidInterfaceName.value;
 }
 
+/* Create a custom interface - called by the modal */
 function createInterface() {
 	const name = interfaceModalInterfaceName.value.value;
 	const found = interfacesList.value.find(ifname => ifname == name);
@@ -506,6 +516,7 @@ function createInterface() {
 	interfaceModalInterfaceName.value.value = '';
 }
 
+/* Called on interface selected */
 async function onInterfaceSelect(e) {
 	if (selectedInterfaces.value == customInterfaceLabel) {
 		selectedInterfaces.value = '';
@@ -516,6 +527,7 @@ async function onInterfaceSelect(e) {
 	onConfigChange(e);
 }
 
+/* Update timeseries charts */
 async function updateCharts() {
 	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
 
