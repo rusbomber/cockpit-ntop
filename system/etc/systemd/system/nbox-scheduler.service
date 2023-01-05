@@ -1,0 +1,14 @@
+[Unit]
+Description=Start/stop nbox-scheduler service
+After=network.target syslog.target redis.service
+Wants=redis.service
+PartOf=redis.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /usr/share/nbox/scripts/nbox-scheduler.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
