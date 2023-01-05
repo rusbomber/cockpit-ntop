@@ -45,17 +45,16 @@
 		Schedule Extraction
 	</template>
 	<template v-slot:body>
-
-		<div class="form-group">
-			<h5>Source Storage</h5>
-			<Multiselect v-model="selectedTimelines" :options="timelinesList" mode="tags" :preselect-first="false" placeholder="Select the source timeline folders" :close-on-select="false" ref="timelineMultiselect" :class="{ 'border border-danger': invalidTimelines }" @change="onConfigChange()" />
-			<small class="form-text text-muted">Source timeline folders from which packets are extracted.</small>
-		</div>
-
 		<div class="form-group">
 			<h5>Time Interval</h5>
 			<Datepicker v-model="timeInterval" model-type="timestamp" range enable-seconds format="dd/MM/yyyy HH:mm:ss" :clearable="false" required :class="{ 'border border-danger': invalidTimeInterval }" @change="onConfigChange()" @update:modelValue="onConfigChange" />
 			<small class="form-text text-muted">Time interval for traffic extraction from the dump set.</small>
+		</div>
+
+		<div class="form-group">
+			<h5>Source Storage</h5>
+			<Multiselect v-model="selectedTimelines" :options="timelinesList" mode="tags" :preselect-first="false" placeholder="Select the source timeline folders" :close-on-select="false" ref="timelineMultiselect" :class="{ 'border border-danger': invalidTimelines }" @change="onConfigChange()" @select="onConfigChange()" />
+			<small class="form-text text-muted">Source timeline folders from which packets are extracted.</small>
 		</div>
 
 		<div class="form-group">
@@ -180,9 +179,9 @@ const tasksTableColumns = ref([
 		render: function (data, type, row) {
 			if (type === 'display') {
 				let actions = "";
-				actions += "<a href='#' id='task_delete_" + row.id + "' task-id='" + row.id + "'>" + getIcon("delete") + "</a> ";
+				actions += "<a href='#' id='task_delete_" + row.id + "'>" + getIcon("delete") + "</a> ";
 				if (row.status == 'completed' || row.status == 'processed') {
-					actions += "<a href='#' id='task_folder_" + row.id + "' task-id='" + row.id + "'>" + getIcon("folder") + "</a> ";
+					actions += "<a href='#' id='task_folder_" + row.id + "'>" + getIcon("folder") + "</a> ";
 				}
 				actions += data;
 				return actions;
@@ -241,6 +240,7 @@ function taskInfoToTableData(id, status, info) {
 		status: status,
 		creation: info.creation_time,
 		info: info.filter,
+		folder: info.folder,
 		actions: ""
 	};
 }
@@ -270,37 +270,31 @@ async function addTask() {
 	createTaskModal.value.close();
 }
 
-/* Show modal to delete a task */
-async function showDeleteModal(e) {
-	const id = this.getAttribute('task-id');
-	currentTaskID.value = id;
-	onDeleteModal.value.show();
-}
-
-/* Open folder with PCAPs for the task */
-async function openFolder(e) {
-
-	const id = this.getAttribute('task-id');
-
-	const status = await getTaskStatus(id);
-	const info = await getTaskInfo(id);
-
-	if (status == 'completed') {
-		await setTaskStatus(id, 'processed');
-	}
-
-	//TODO redirect to the right folder (info.folder)
-	window.open("/navigator", "_blank");
-}
-
 /* Add action links to the table when after data is rendered */
 watch([tasksTableData], (cur_value, old_value) => {
 	tasksTableData.value.forEach(function (task) {
-		let delete_link = document.getElementById("task_delete_" + task.id);
-		delete_link.onclick = showDeleteModal;
+		const id = task.id;
+		const status = task.status;
+		const folder = task.info.folder;
+
+		/* On delete action */
+		let delete_link = document.getElementById("task_delete_" + id);
+		delete_link.onclick = function () {
+			currentTaskID.value = id;
+			onDeleteModal.value.show();
+		}
+
+		/* On folder open action */
 		if (task.status == 'completed' || task.status == 'processed') {
-			let folder_link = document.getElementById("task_folder_" + task.id);
-			folder_link.onclick = openFolder;
+			let folder_link = document.getElementById("task_folder_" + id);
+			folder_link.onclick = async function () {
+				if (status == 'completed') {
+					await setTaskStatus(id, 'processed');
+				}
+
+				//TODO redirect to the right 'folder'
+				window.open("/navigator", "_blank");
+			}
 		}
 	});
 }, { flush: 'post'});
