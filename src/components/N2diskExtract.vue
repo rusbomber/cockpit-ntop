@@ -112,9 +112,11 @@ import Datepicker from '@vuepic/vue-datepicker';
 import DataTable from 'datatables.net-vue3'
 import DataTablesLib from 'datatables.net';
 import moment from "moment";
-
+import { useToast } from "vue-toastification";
 import '@vuepic/vue-datepicker/dist/main.css';
- 
+
+const toast = useToast();
+
 DataTable.use(DataTablesLib);
 
 /* 
@@ -252,6 +254,8 @@ async function addTask() {
 	if (!validationOk.value)
 		return;
 
+	createTaskModal.value.close();
+
 	await createPath(storagePath.value.value /* path */, "n2disk" /* user */)
 
 	const task_info = {
@@ -267,7 +271,7 @@ async function addTask() {
 
 	await updateTasks(); /* tasksTableData.value.unshift(taskInfoToTableData(id, "pending", task_info)); */
 
-	createTaskModal.value.close();
+	toast.success("Extraction scheduled!");
 }
 
 /* Add action links to the table when after data is rendered */
