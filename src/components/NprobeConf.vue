@@ -29,7 +29,7 @@
 
 		<div class="form-group" v-show="mode == 'probe'">
 			<h5>Interface</h5>
-			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" @change="onConfigChange()" />
+			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="single" :preselect-first="true" placeholder="Select the interfaces" :close-on-select="true" ref="interfaceMultiselect" @change="onConfigChange()" @select="onInterfaceSelect()" />
 			<small class="form-text text-muted">Network interface used for packet capture.</small>
 		</div>
 
@@ -115,18 +115,40 @@
 		<button class="btn btn-secondary" @click="onApplyModal.close()">Close</button>
 	</template>
 </Modal>
+
+<Modal ref="createInterfaceModal">
+	<template v-slot:title>
+		Add Custom Interface
+	</template>
+	<template v-slot:body>
+		<div class="form-group">
+			<h5>Interface Name</h5>
+			<input type="text" class="form-control" :class="{ 'border border-danger': interfaceModalInvalidInterfaceName }" ref="interfaceModalInterfaceName" @change="onInterfaceModalChange()" />
+			<small class="form-text text-muted">Specify the name of the custom interface to be created.</small>
+		</div>
+	</template>
+	<template v-slot:footer>
+		<button class="btn btn-primary" @click="createInterface(); createInterfaceModal.close()" :disabled="!interfaceModalValidationOk">Create</button>
+		<button class="btn btn-secondary" @click="createInterfaceModal.close()">Close</button>
+	</template>
+</Modal>
+
+
 </div>
 
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
-import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData } from "../functions";
+import { useToast } from "vue-toastification";
+import { stubMode, isEndpoint, isIPPort, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, deleteService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, readMetadata, writeMetadata, deleteMetadata, deleteConfigurationFile, getRRDData, isValidInterfaceName } from "../functions";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
 import TSChart from './TSChart.vue'
+
+const toast = useToast();
 
 /* 
  * Component parameters
@@ -149,6 +171,8 @@ const props = defineProps({
 })
 
 const serviceName = "nprobe";
+
+const customInterfaceLabel = "Add Custom Interface..";
 
 /* Service status */
 const nprobeActive = ref(false);
@@ -177,6 +201,13 @@ const validationOk = ref(true);
 const invalidFlowExportEndpoint = ref(false)
 const invalidCollectionPort = ref(false)
 const invalidCollector = ref(false)
+
+/* Custom Interface Modal Form */
+const createInterfaceModal = ref(null)
+const interfaceModalInterfaceName = ref(null)
+
+const interfaceModalValidationOk = ref(true)
+const interfaceModalInvalidInterfaceName = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
@@ -242,6 +273,11 @@ async function loadConfiguration() {
 				case '-i':
 				case '--interface':
 					if (option.value && option.value != 'none') {
+						const found = interfacesList.value.find(ifname => ifname == option.value);
+						if (!found) {
+							/* Custom interface? Adding to the list.. */
+							interfacesList.value.unshift(option.value);
+						}
 						selectedInterfaces.value.push(option.value);
 					}
 					break;
@@ -296,13 +332,13 @@ function computeConfiguration() {
 	const advanced_configuration = parseConfiguration(advancedSettingsTextarea.value.value);
 
 	if (props.mode == 'probe') {
-		if (selectedInterfaces.value && selectedInterfaces.value != '') {
+		if (selectedInterfaces.value) {
 			form_configuration.push({ name: '-i', value: selectedInterfaces.value });
 		}
 	}
 
 	if (props.mode == 'collector') {
-		if (flowCollectionPort.value && flowCollectionPort.value != '') {
+		if (flowCollectionPort.value && flowCollectionPort.value.value) {
 			form_configuration.push({ name: '-3', value: flowCollectionPort.value.value });
 		}
 	}
@@ -375,6 +411,9 @@ onBeforeMount(async () => {
 		let interfaces = await getNetworkInterfaces();
 		interface_names = interfaces.map(info => info.name);
 	}
+
+	interface_names.push(customInterfaceLabel);
+
 	interfacesList.value = interface_names
 });
 
@@ -436,6 +475,45 @@ function onConfigChange(e) {
 
 	/* Set config changed */
 	configChanged.value = true;
+}
+
+function onInterfaceModalChange(e) {
+	/* Reset */
+	interfaceModalInvalidInterfaceName.value = false;
+
+	/* Validate */
+	const name = interfaceModalInterfaceName.value.value;
+	if (name && !isValidInterfaceName(name)) {
+		interfaceModalInvalidInterfaceName.value = true;
+	}
+	
+	/* Update global validation flag */
+	validationOk.value = name && !interfaceModalInvalidInterfaceName.value;
+}
+
+function createInterface() {
+	const name = interfaceModalInterfaceName.value.value;
+	const found = interfacesList.value.find(ifname => ifname == name);
+	if (found) {
+		toast.warning(name + " already present");
+		return;
+	}
+
+	interfacesList.value.unshift(name);
+	selectedInterfaces.value = name;
+
+	/* Reset modal */
+	interfaceModalInterfaceName.value.value = '';
+}
+
+async function onInterfaceSelect(e) {
+	if (selectedInterfaces.value == customInterfaceLabel) {
+		selectedInterfaces.value = '';
+		createInterfaceModal.value.show();
+		return;
+	}
+
+	onConfigChange(e);
 }
 
 async function updateCharts() {

@@ -106,10 +106,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { useToast } from "vue-toastification";
 import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList } from "../functions";
 import NprobeConf from './NprobeConf.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
+
+const toast = useToast();
 
 const productName = ref("nprobe")
 const productLabel = ref("nProbe")
@@ -202,7 +205,7 @@ function createInstance() {
 	const name = instanceName.value.value;
 	const found = instances.value.find(instance => instance.name == name);
 	if (found) {
-		window.alert(name + " already present");
+		toast.warning(name + " already present");
 		return;
 	}
 

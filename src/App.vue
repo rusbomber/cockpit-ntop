@@ -25,7 +25,7 @@ onBeforeMount(async () => {
 	else if (pathname.includes('/n2disk/'))
 		product.value = 'n2disk';
 	else
-		product.value = 'n2disk';
+		product.value = 'nprobe';
 });
 
 </script>

@@ -3,6 +3,11 @@ export function stubMode() {
 	return false;
 }
 
+export function isValidInterfaceName(str) {
+	var pattern = new RegExp('^([a-z\\d-:@]*[a-z\\d:@])*$','i');
+	return pattern.test(str);
+}
+
 export function isValidInstanceName(str) {
 	var pattern = new RegExp('^([a-z\\d-]*[a-z\\d])*$','i');
 	return pattern.test(str);

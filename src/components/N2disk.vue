@@ -71,11 +71,14 @@
 
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
+import { useToast } from "vue-toastification";
 import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList, getLicensedN2diskBinary } from "../functions";
 import N2diskConf from './N2diskConf.vue'
 import N2diskExtract from './N2diskExtract.vue'
 import Modal from './Modal.vue'
 import LicenseConf from './LicenseConf.vue'
+
+const toast = useToast();
 
 const productName = ref("n2disk")
 const productLabel = ref("n2disk")
@@ -154,7 +157,7 @@ function createInstance() {
 	const name = instanceName.value.value;
 	const found = instances.value.find(instance => instance.name == name);
 	if (found) {
-		window.alert(name + " already present");
+		toast.warning(name + " already present");
 		return;
 	}
 

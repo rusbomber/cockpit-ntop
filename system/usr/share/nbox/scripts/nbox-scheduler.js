@@ -91,6 +91,9 @@ async function dequeue_tasks() {
 			command.push('-o');
 			command.push(info.folder);
 
+			command.push('-x'); /* file prefix */
+			command.push('extraction_' + task_id + '_');
+
 			if (info.max_file_size) {
 				command.push('-P');
 				command.push(info.max_file_size);
