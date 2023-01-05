@@ -103,7 +103,7 @@
 <script setup>
 import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import { stubMode, isEndpoint, isIPPort, readConfigurationFile, parseConfiguration, writeConfigurationFile, isValidPath, isValidFilter, createPath, getConfigurationFileList } from "../functions";
-import { createTask, getAllTasks, deleteTask } from "../tasks.js"
+import { createTask, getAllTasks, deleteTask, getTaskInfo, getTaskStatus, setTaskStatus } from "../tasks.js"
 import Multiselect from '@vueform/multiselect'
 import Slider from '@vueform/slider'
 import Toggle from '@vueform/toggle'
@@ -179,7 +179,13 @@ const tasksTableColumns = ref([
 		orderable: false,
 		render: function (data, type, row) {
 			if (type === 'display') {
-				return "<a href='#' id='task_delete_" + row.id + "' task-id='" + row.id + "'>" + getIcon("delete") + "</a> " + data;
+				let actions = "";
+				actions += "<a href='#' id='task_delete_" + row.id + "' task-id='" + row.id + "'>" + getIcon("delete") + "</a> ";
+				if (row.status == 'completed' || row.status == 'processed') {
+					actions += "<a href='#' id='task_folder_" + row.id + "' task-id='" + row.id + "'>" + getIcon("folder") + "</a> ";
+				}
+				actions += data;
+				return actions;
 			}
 			return data;
 		},
@@ -228,6 +234,7 @@ function formatSize(value) {
 		return Math.round(value) + " MB";
 }
 
+/* Convert task information into datatable format */
 function taskInfoToTableData(id, status, info) {
 	return {
 		id: id,
@@ -238,6 +245,7 @@ function taskInfoToTableData(id, status, info) {
 	};
 }
 
+/* Add a new task to the scheduler */
 async function addTask() {
 	onConfigChange({}, true);
 
@@ -262,25 +270,49 @@ async function addTask() {
 	createTaskModal.value.close();
 }
 
+/* Show modal to delete a task */
 async function showDeleteModal(e) {
 	const id = this.getAttribute('task-id');
 	currentTaskID.value = id;
 	onDeleteModal.value.show();
 }
 
+/* Open folder with PCAPs for the task */
+async function openFolder(e) {
+
+	const id = this.getAttribute('task-id');
+
+	const status = await getTaskStatus(id);
+	const info = await getTaskInfo(id);
+
+	if (status == 'completed') {
+		await setTaskStatus(id, 'processed');
+	}
+
+	//TODO redirect to the right folder (info.folder)
+	window.open("/navigator", "_blank");
+}
+
+/* Add action links to the table when after data is rendered */
 watch([tasksTableData], (cur_value, old_value) => {
 	tasksTableData.value.forEach(function (task) {
 		let delete_link = document.getElementById("task_delete_" + task.id);
 		delete_link.onclick = showDeleteModal;
+		if (task.status == 'completed' || task.status == 'processed') {
+			let folder_link = document.getElementById("task_folder_" + task.id);
+			folder_link.onclick = openFolder;
+		}
 	});
 }, { flush: 'post'});
 
+/* Delete a task (TODO: optionally delete also PCAP files) */
 async function delTask() {
 	await deleteTask(currentTaskID.value);
 	await updateTasks();
 	onDeleteModal.value.close();
 }
 
+/* Update the tasks table */
 async function updateTasks() {
 	const tasks = await getAllTasks(); 
 
@@ -291,6 +323,7 @@ async function updateTasks() {
 	tasksTableData.value = tasks_data;
 }
 
+/* Get all timelines configured in the n2disk configuration files */
 async function getTimelines() {
 	let timeline_paths = [];
 

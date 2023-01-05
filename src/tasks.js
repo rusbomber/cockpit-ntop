@@ -6,6 +6,7 @@
  * - running
  * - completed
  * - processed
+ * - failed
  *
  */
 
@@ -77,6 +78,11 @@ export async function getTaskStatus(id) {
 	if (status.length == 0)
 		return 'unknown';
 	return status;
+}
+
+/* Set task status */
+export async function setTaskStatus(id, status) {
+	await redis('HSET', 'nbox.tasks:' + id, 'status', status);
 }
 
 /* Get task info */
