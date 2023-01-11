@@ -15,13 +15,13 @@
 	<div class="collapse navbar-collapse" id="navbarMainMenu">
 		<ul class="navbar-nav mr-auto">
 			<li class="nav-item" :class="{ 'active': tab == 'configuration'}">
-				<a class="nav-link" href="#" @click="tab = 'configuration'">Setup</a>
+				<a class="nav-link" href="#" @click="tab = 'configuration'"><font-awesome-icon icon="fa-solid fa-file-waveform" class="fa-size-small" /> Setup</a>
 			</li>
 			<li class="nav-item" :class="{ 'active': tab == 'license'}">
-				<a class="nav-link" href="#" @click="tab = 'license'">License</a>
+				<a class="nav-link" href="#" @click="tab = 'license'"><font-awesome-icon icon="fa-solid fa-id-card" /> License</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent">Logs</a>
+				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent"><font-awesome-icon icon="fa-solid fa-scroll" /> Logs</a>
 			</li>
 		</ul>
 	</div>

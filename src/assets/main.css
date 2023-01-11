@@ -122,9 +122,14 @@ body {
   height: 400px!important;
 }
 
-.fix-fa-vertical-align {
-  /* padding-bottom: 3px; */
+.fa-size-small {
+  padding-bottom: 2px;
   width: 0.8rem;
+}
+
+.fa-size-big {
+  padding-bottom: 2px;
+  width: 1.2rem;
 }
 
 .dataTables_info {

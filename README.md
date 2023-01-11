@@ -39,7 +39,7 @@ sudo make build-install
 
 ## Production
 
-### Install in Cockpit
+### Install (pre-compiled dist) in Cockpit
 
 ```sh
 sudo make install

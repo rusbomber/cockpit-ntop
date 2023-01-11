@@ -15,16 +15,16 @@
 	<div class="collapse navbar-collapse" id="navbarMainMenu">
 		<ul class="navbar-nav mr-auto">
 			<li v-for="instance in instances" class="nav-item" :class="{ 'active': tab == instance.name}">
-				<a class="nav-link" href="#" @click="tab = instance.name">{{ instance.label }}</a>
+				<a class="nav-link" href="#" @click="tab = instance.name"><font-awesome-icon icon="fa-solid fa-file-waveform" class="fa-size-small" /> {{ instance.label }}</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="#" @click="createInstanceModal.show()"><font-awesome-icon icon="fa-solid fa-plus" class="fix-fa-vertical-align" title="Add Instance" /></a>
+				<a class="nav-link" href="#" @click="createInstanceModal.show()"><font-awesome-icon icon="fa-solid fa-file-circle-plus" class="fa-size-big" title="Add Instance" /></a>
 			</li>
 			<li class="nav-item" :class="{ 'active': tab == 'license'}">
-				<a class="nav-link" href="#" @click="tab = 'license'">License</a>
+				<a class="nav-link" href="#" @click="tab = 'license'"><font-awesome-icon icon="fa-solid fa-id-card" /> License</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent">Logs</a>
+				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent"><font-awesome-icon icon="fa-solid fa-scroll" /> Logs</a>
 			</li>
 		</ul>
 	</div>
