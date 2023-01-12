@@ -61,6 +61,14 @@ binary-arch: build install
 	mkdir -p ./debian/nboxui/usr/share/cockpit/n2disk
 	cp -vr ../../plugins/n2disk/* ./debian/nboxui/usr/share/cockpit/n2disk/
 	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/n2disk/
+	# Cento
+	mkdir -p ./debian/nboxui/usr/share/cockpit/cento
+	cp -vr ../../plugins/cento/* ./debian/nboxui/usr/share/cockpit/cento/
+	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/cento/
+	# Cluster
+	mkdir -p ./debian/nboxui/usr/share/cockpit/cluster
+	cp -vr ../../plugins/cluster/* ./debian/nboxui/usr/share/cockpit/cluster/
+	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/cluster/
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
