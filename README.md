@@ -24,6 +24,8 @@ apt install npm
    - ntopng
    - nprobe
    - n2disk
+   - cento
+   - cluster
 
 ## Development
 

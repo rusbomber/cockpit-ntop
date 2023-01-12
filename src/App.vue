@@ -2,6 +2,8 @@
 	<Ntopng v-if="product == 'ntopng'" />
 	<Nprobe v-if="product == 'nprobe'" />
 	<N2disk v-if="product == 'n2disk'" />
+	<Cento  v-if="product == 'cento'" />
+	<Cluster v-if="product == 'cluster'" />
 </template>
 
 <style scoped>
@@ -12,6 +14,8 @@ import { ref, onMounted, onBeforeMount, computed, watch } from "vue";
 import Ntopng from './components/Ntopng.vue'
 import Nprobe from './components/Nprobe.vue'
 import N2disk from './components/N2disk.vue'
+import Cento  from './components/Cento.vue'
+import Cluster  from './components/Cluster.vue'
 
 const product = ref('')
 
@@ -24,6 +28,10 @@ onBeforeMount(async () => {
 		product.value = 'nprobe';
 	else if (pathname.includes('/n2disk/'))
 		product.value = 'n2disk';
+	else if (pathname.includes('/cento/'))
+		product.value = 'cento';
+	else if (pathname.includes('/cluster/'))
+		product.value = 'cluster';
 	else
 		product.value = 'nprobe';
 });

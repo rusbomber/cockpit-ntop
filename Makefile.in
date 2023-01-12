@@ -19,6 +19,16 @@ dist-install:
 	mkdir /usr/share/cockpit/n2disk
 	cp -r plugins/n2disk/* /usr/share/cockpit/n2disk/
 	cp -r dist/* /usr/share/cockpit/n2disk/
+	# cento plugin
+	rm -rf /usr/share/cockpit/cento
+	mkdir /usr/share/cockpit/cento
+	cp -r plugins/cento/* /usr/share/cockpit/cento/
+	cp -r dist/* /usr/share/cockpit/cento/
+	# cluster plugin
+	rm -rf /usr/share/cockpit/cluster
+	mkdir /usr/share/cockpit/cluster
+	cp -r plugins/cluster/* /usr/share/cockpit/cluster/
+	cp -r dist/* /usr/share/cockpit/cluster/
 	# branding
 	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
 
