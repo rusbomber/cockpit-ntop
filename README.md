@@ -3,15 +3,27 @@
 ## Prerequisites
 
 - cockpit
-- cockpit-navigator
-- npm (development only)
 
- 
 ```sh
-apt install cockpit cockpit-navigator npm
+apt install cockpit
 ```
 
-- ntop suite (ntopng, nprobe, n2disk) from https://packages.ntop.org
+- cockpit-navigator file manager (optional)
+
+```sh
+apt install cockpit-navigator
+```
+
+- npm (development only)
+
+```sh
+apt install npm
+```
+- ntop suite (from https://packages.ntop.org)
+
+   - ntopng
+   - nprobe
+   - n2disk
 
 ## Development
 
