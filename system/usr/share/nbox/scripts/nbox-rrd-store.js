@@ -124,7 +124,6 @@ async function dump_cento_stats() {
 					break;
 				case 'FlowExportStats':
 					const flow_info = item.value.split(' ')[0].split('/');
-          console.log(flow_info)
 					stats['exportedFlows'] = flow_info[2]; 
 					break;
 			}
