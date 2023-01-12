@@ -1,0 +1,13 @@
+*~
+
+# Ignoring front end developement directories
+node_modules/
+
+# Ignoring Packages
+packages/
+
+# Ignoring created files
+Makefile
+apt-ntop.*
+config.log
+config.status
