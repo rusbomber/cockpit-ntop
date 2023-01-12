@@ -5,11 +5,13 @@
 - cockpit
 - cockpit-navigator
 - npm (development only)
-- ntop suite (ntopng, nprobe, n2disk)
+
  
 ```sh
 apt install cockpit cockpit-navigator npm
 ```
+
+- ntop suite (ntopng, nprobe, n2disk) from https://packages.ntop.org
 
 ## Development
 
