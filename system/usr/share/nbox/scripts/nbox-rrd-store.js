@@ -7,6 +7,8 @@ const { promisify } = require('util');
 const exec = promisify(require('child_process').exec)
 const fs = require('fs')
 
+const debug = false;
+
 async function get_running_services(application) {
 	const cmd = "systemctl list-units  --type=service  --state=running | grep " + application + " | tr -d ' ' | cut -d '.' -f 1";
 	const output = await exec(cmd);
@@ -15,6 +17,9 @@ async function get_running_services(application) {
 
 async function get_service_pid(instance) {
 	const cmd = "systemctl show -p MainPID " + instance + " 2>/dev/null | cut -d= -f2";
+	if (debug) {
+		console.log(cmd);
+	}
 	const output = await exec(cmd);
 	return output.stdout.trim();
 }
@@ -22,16 +27,20 @@ async function get_service_pid(instance) {
 async function get_service_stats(pid) {
 	let stats = [];
 	const cmd = "cat /proc/net/pf_ring/stats/" + pid + "-*";
-	const output = await exec(cmd);
-	if (output.stdout) {
-		const lines = output.stdout.trim().split(/\r?\n/);
-		stats = lines.map(info => {
-			const pair = info.split(/:(.*)/s);
-			return {
-				name: pair[0].trim(),
-				value: pair[1].trim()
-			} 
-		});
+	try {
+		const output = await exec(cmd);
+		if (output.stdout) {
+			const lines = output.stdout.trim().split(/\r?\n/);
+			stats = lines.map(info => {
+				const pair = info.split(/:(.*)/s);
+				return {
+					name: pair[0].trim(),
+					value: pair[1].trim()
+				} 
+			});
+		}
+	} catch (error) {
+		console.error(error);
 	}
 	return stats
 }
@@ -51,14 +60,24 @@ async function update_rrd(application, instance, metrics, stats) {
 		}
 		cmd += "RRA:AVERAGE:0.5:1:180 ";
 		cmd += "RRA:AVERAGE:0.5:30:600";
-		output = await exec(cmd);
+
+		if (debug) {
+			console.log(cmd);
+		} else {
+			output = await exec(cmd);
+		}
 	}
 
 	cmd = "rrdtool update " + path + " N";
 	for (const metric of metrics) {
 		cmd += ":" + stats[metric];
 	}
-	output = await exec(cmd);
+
+	if (debug) {
+		console.log(cmd);
+	} else {
+		output = await exec(cmd);
+	}
 }
 
 async function dump_nprobe_stats() {
@@ -69,67 +88,84 @@ async function dump_nprobe_stats() {
 	for (const instance of instances) {
 		const pid = await get_service_pid(instance);
 
-		//console.log("--- Instance " + instance  + " has PID = " + pid);
+		if (debug) {
+			console.log("--- Instance " + instance  + " has PID = " + pid);
+		}
 
 		const service_stats = await get_service_stats(pid);
 
-		let stats = [];
-		service_stats.forEach(function(item) {
-			//console.log(item.name + " => " + item.value);
-			switch (item.name) {
-				case 'Packets':
-					const packets_info = item.value.split(' ')[0].split('/');
-					stats['receivedPkts'] = packets_info[0];
-					stats['filteredPkts'] = packets_info[0];
-					stats['droppedPkts'] = packets_info[1];
-					break;
-				case 'Bytes':
-					stats['receivedBytes'] = item.value; 
-					break;
-				case 'FlowExportStats':
-					const flow_info = item.value.split(' ')[0].split('/');
-					stats['exportedFlows'] = flow_info[2]; 
-					break;
-			}
-		})
+		if (service_stats.length == 0) {
+			console.log("Failure reading stats for " + application + " on " + instance  + " with PID = " + pid);
+		} else {
+			let stats = [];
+			service_stats.forEach(function(item) {
+				if (debug) {
+					console.log(item.name + " => " + item.value);
+				}
+				switch (item.name) {
+					case 'Packets':
+						const packets_info = item.value.split(' ')[0].split('/');
+						stats['receivedPkts'] = packets_info[0];
+						stats['filteredPkts'] = packets_info[0];
+						stats['droppedPkts'] = packets_info[1];
+						break;
+					case 'Bytes':
+						stats['receivedBytes'] = item.value; 
+						break;
+					case 'FlowExportStats':
+						const flow_info = item.value.split(' ')[0].split('/');
+						stats['exportedFlows'] = flow_info[2]; 
+						break;
+				}
+			})
 
-		update_rrd(application, instance, metrics, stats);
+			update_rrd(application, instance, metrics, stats);
+		}
 	}
 }
 
 async function dump_cento_stats() {
 	const application = "cento";
-	const metrics = ['receivedPkts', 'filteredPkts', 'droppedPkts', 'receivedBytes', 'exportedFlows'];
+	const metrics = ['receivedPkts', 'filteredPkts', 'droppedPkts', 'receivedBytes', 'activeFlows', 'exportedFlows'];
 
 	const instances = await get_running_services(application);
 	for (const instance of instances) {
 		const pid = await get_service_pid(instance);
 
-		//console.log("--- Instance " + instance  + " has PID = " + pid);
+		if (debug) {
+			console.log("--- Instance " + instance  + " has PID = " + pid);
+		}
 
 		const service_stats = await get_service_stats(pid);
 
-		let stats = [];
-		service_stats.forEach(function(item) {
-			//console.log(item.name + " => " + item.value);
-			switch (item.name) {
-				case 'Packets':
-					const packets_info = item.value.split(' ')[0].split('/');
-					stats['receivedPkts'] = packets_info[0];
-					stats['filteredPkts'] = packets_info[0];
-					stats['droppedPkts'] = packets_info[1];
-					break;
-				case 'Bytes':
-					stats['receivedBytes'] = item.value; 
-					break;
-				case 'FlowExportStats':
-					const flow_info = item.value.split(' ')[0].split('/');
-					stats['exportedFlows'] = flow_info[2]; 
-					break;
-			}
-		})
-
-		update_rrd(application, instance, metrics, stats);
+		if (service_stats.length == 0) {
+			console.log("Failure reading stats for " + application + " on " + instance  + " with PID = " + pid);
+		} else {
+			let stats = [];
+			service_stats.forEach(function(item) {
+				if (debug) {
+					console.log(item.name + " => " + item.value);
+				}
+				switch (item.name) {
+					case 'Packets':
+						stats['receivedPkts'] = item.value;
+						stats['filteredPkts'] = item.value;
+					case 'Dropped':
+						stats['droppedPkts'] = item.value;
+						break;
+					case 'Bytes':
+						stats['receivedBytes'] = item.value; 
+						break;
+					case 'Flows':
+						const flow_info = item.value.replaceAll("'", "").split(' ')[0].split('/');
+						stats['activeFlows'] = flow_info[0]; 
+						stats['exportedFlows'] = flow_info[1]; 
+						break;
+				}
+			})
+	
+			update_rrd(application, instance, metrics, stats);
+		}
 	}
 }
 
@@ -141,35 +177,44 @@ async function dump_n2disk_stats() {
 	for (const instance of instances) {
 		const pid = await get_service_pid(instance);
 
-		//console.log("--- Instance " + instance  + " has PID = " + pid);
+		if (debug) {
+			console.log("--- Instance " + instance  + " has PID = " + pid);
+		}
 
 		const service_stats = await get_service_stats(pid);
 
-		let stats = [];
-		service_stats.forEach(function(item) {
-			//console.log(item.name + " => " + item.value);
-			switch (item.name) {
-				case 'Packets':
-					stats['receivedPkts'] = item.value;
-					break;
-				case 'Filtered':
-					stats['filteredPkts'] = item.value;
-					break;
-				case 'Dropped':
-					stats['droppedPkts'] = item.value;
-					break;
-				case 'Bytes':
-					stats['receivedBytes'] = item.value; 
-					break;
-				case 'DumpedBytes':
-					stats['dumpedBytes'] = item.value;
-					break;
-			}
-		})
+		if (service_stats.length == 0) {
+			console.log("Failure reading stats for " + application + " on " + instance  + " with PID = " + pid);
+		} else {
+			let stats = [];
+			service_stats.forEach(function(item) {
+				if (debug) {
+					console.log(item.name + " => " + item.value);
+				}
+				switch (item.name) {
+					case 'Packets':
+						stats['receivedPkts'] = item.value;
+						break;
+					case 'Filtered':
+						stats['filteredPkts'] = item.value;
+						break;
+					case 'Dropped':
+						stats['droppedPkts'] = item.value;
+						break;
+					case 'Bytes':
+						stats['receivedBytes'] = item.value; 
+						break;
+					case 'DumpedBytes':
+						stats['dumpedBytes'] = item.value;
+						break;
+				}
+			})
 
-		update_rrd(application, instance, metrics, stats);
+			update_rrd(application, instance, metrics, stats);
+		}
 	}
 }
 
 setInterval(dump_nprobe_stats, 5000);
+setInterval(dump_cento_stats,  5000);
 setInterval(dump_n2disk_stats, 5000);

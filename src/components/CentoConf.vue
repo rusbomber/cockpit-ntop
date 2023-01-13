@@ -265,6 +265,7 @@ async function updateCharts() {
 		 * filteredPkts
 		 * receivedBytes
 		 * droppedPkts
+		 * activeFlows
 		 * exportedFlows
 		 */
 
