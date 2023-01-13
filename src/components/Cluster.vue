@@ -20,9 +20,6 @@
 			<li class="nav-item">
 				<a class="nav-link" href="#" @click="createInstanceModal.show()"><font-awesome-icon icon="fa-solid fa-file-circle-plus" class="fa-size-big" title="Add Instance" /></a>
 			</li>
-			<li class="nav-item" :class="{ 'active': tab == 'license'}">
-				<a class="nav-link" href="#" @click="tab = 'license'"><font-awesome-icon icon="fa-solid fa-id-card" /> License</a>
-			</li>
 			<li class="nav-item">
 				<a class="nav-link" :href="'/system/logs#/?priority=info&tag=' + productName" target="_parent"><font-awesome-icon icon="fa-solid fa-scroll" /> Logs</a>
 			</li>
@@ -33,8 +30,7 @@
 <template  v-for="instance in instances" >
 	<ClusterConf :name="instance.name" :mode="instance.mode" :label="instance.label" v-if="tab == instance.name" />
 </template>
-<LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
-<div v-if="tab != 'license' && instances.length == 0">
+<div v-if="instances.length == 0">
 	<br /><center><span><b>{{ productLabel }}</b> has not been configured yet, please create an instance.</span></center>
 </div>
 
@@ -73,7 +69,6 @@ import { useToast } from "vue-toastification";
 import { stubMode, fileExists, isValidInstanceName, getConfigurationFileList } from "../functions";
 import ClusterConf from './ClusterConf.vue'
 import Modal from './Modal.vue'
-import LicenseConf from './LicenseConf.vue'
 
 const toast = useToast();
 
