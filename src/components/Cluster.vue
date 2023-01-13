@@ -77,6 +77,7 @@ import LicenseConf from './LicenseConf.vue'
 
 const toast = useToast();
 
+const binaryName = "zbalance_ipc"
 const productName = ref("cluster")
 const productLabel = ref("Cluster")
 
@@ -98,7 +99,7 @@ onBeforeMount(async () => {
 	if (stubMode()) {
 		installed.value = true;
 	} else {
-		installed.value = await fileExists("/usr/bin/" + productName.value);
+		installed.value = await fileExists("/usr/bin/" + binaryName);
 		notInstalled.value = !installed.value;
 	}
 
