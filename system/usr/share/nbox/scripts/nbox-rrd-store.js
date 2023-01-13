@@ -11,6 +11,9 @@ const debug = false;
 
 async function get_running_services(application) {
 	const cmd = "systemctl list-units  --type=service  --state=running | grep " + application + " | tr -d ' ' | cut -d '.' -f 1";
+	if (debug) {
+		console.log(cmd);
+	}
 	const output = await exec(cmd);
 	return output.stdout.trim().split(/\r?\n/);
 }
@@ -215,6 +218,53 @@ async function dump_n2disk_stats() {
 	}
 }
 
+async function dump_cluster_stats() {
+	const application = "cluster";
+	const metrics = ['receivedPkts', 'filteredPkts', 'forwardedPkts', 'processedPkts', 'droppedPkts' ];
+
+	const instances = await get_running_services(application);
+	for (const instance of instances) {
+		const pid = await get_service_pid(instance);
+
+		if (debug) {
+			console.log("--- Instance " + instance  + " has PID = " + pid);
+		}
+
+		const service_stats = await get_service_stats(pid);
+
+		if (service_stats.length == 0) {
+			console.log("Failure reading stats for " + application + " on " + instance  + " with PID = " + pid);
+		} else {
+			let stats = [];
+			stats['droppedPkts'] = 0;
+			service_stats.forEach(function(item) {
+				if (debug) {
+					console.log(item.name + " => " + item.value);
+				}
+				switch (item.name) {
+					case 'Packets':
+						stats['receivedPkts'] = item.value;
+						stats['filteredPkts'] = item.value;
+						break;
+					case 'Forwarded':
+						stats['forwardedPkts'] = item.value;
+						break;
+					case 'Processed':
+						stats['processedPkts'] = item.value;
+						break;
+					case 'IFDropped':
+						/* May be set or not depending on conf */
+						stats['droppedPkts'] = item.value;
+						break;
+				}
+			})
+
+			update_rrd(application, instance, metrics, stats);
+		}
+	}
+}
+
 setInterval(dump_nprobe_stats, 5000);
 setInterval(dump_cento_stats,  5000);
 setInterval(dump_n2disk_stats, 5000);
+setInterval(dump_cluster_stats, 5000);
