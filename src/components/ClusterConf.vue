@@ -4,10 +4,10 @@
 <div class="chart-box" v-show="chartsAvailable">
 	<div class="row">
 		<div class="col-sm">
-			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
+			<TSChart height="120px" name="Captured Traffic Rate" :series="chart1Series" unit="pps"></TSChart>
 		</div>
 		<div class="col-sm">
-			<TSChart height="120px" name="Flow Export Rate" :series="chart2Series" unit="fps"></TSChart>
+			<TSChart height="120px" name="Forwarded Traffic Rate" :series="chart2Series" unit="pps"></TSChart>
 		</div>
 	</div>
 </div>
@@ -123,8 +123,8 @@ const interfaceModalInvalidInterfaceName = ref(false)
 
 /* Charts */
 const chartsAvailable = ref(false);
-const chart1Series = ref([{ name: 'Bytes', data: [] }])
-const chart2Series = ref([{ name: 'Flows', data: [] }])
+const chart1Series = ref([{ name: 'Received', data: [] }])
+const chart2Series = ref([{ name: 'Forwarded', data: [] }])
 
 /* Update service switch state */
 async function updateServiceSwitch() {
@@ -255,21 +255,21 @@ async function updateCharts() {
 	let data = await getRRDData(serviceName, props.name, 10 /* last 10 minutes */);
 
 	if (data && 
-	    data['receivedBytes'] &&
-	    data['receivedBytes'].length > 1 &&
 	    data['receivedPkts'] &&
-	    data['receivedPkts'].length > 1) {
+	    data['receivedPkts'].length > 1 &&
+	    data['forwardedPkts'] &&
+	    data['forwardedPkts'].length > 1) {
 		/*
 		 * Available RRDs:
 		 * receivedPkts
 		 * filteredPkts
-		 * receivedBytes
+		 * forwardedPkts
+		 * processedPkts
 		 * droppedPkts
-		 * exportedFlows
 		 */
 
-		chart1Series.value[0].data = data['receivedBytes'];
-		chart2Series.value[0].data = data['exportedFlows'];
+		chart1Series.value[0].data = data['receivedPkts'];
+		chart2Series.value[0].data = data['forwardedPkts'];
 
 		chartsAvailable.value = true;
 	}
