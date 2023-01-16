@@ -1,5 +1,7 @@
 # Cockpit-based nBox UI
 
+![Alt text](doc/img/nprobe-ui.png?raw=true "nBox UI - nProbe Configuration")
+
 ## Prerequisites
 
 - cockpit
