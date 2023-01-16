@@ -25,6 +25,7 @@ apt install npm
    - nprobe
    - n2disk
    - cento
+   - pf_ring
 
 ## Development
 
