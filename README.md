@@ -25,7 +25,6 @@ apt install npm
    - nprobe
    - n2disk
    - cento
-   - cluster
 
 ## Development
 
