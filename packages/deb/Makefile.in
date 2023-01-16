@@ -10,7 +10,8 @@ build:
 	if test -e "./debian"; then /bin/rm -f debian; fi
 	ln -s debian.nboxui debian
 	\rm -rf ./debian/nboxui
-	cd $(NBOXUI_HOME); make build
+	# Using pre-built dist, uncomment the line below to rebuild
+	#cd $(NBOXUI_HOME); make build
 	dpkg-buildpackage -rfakeroot -d -us -uc
 	dpkg-sig --sign builder -k D1EB60BE ../nboxui*deb
 	@\rm -f ../nboxui*dsc ../nboxui*.gz ../nboxui*changes
