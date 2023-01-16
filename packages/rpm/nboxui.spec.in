@@ -48,15 +48,15 @@ if [ -d $RPM_BUILD_ROOT ]; then
 fi
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/cockpit
-cp -r ../../plugins/* $RPM_BUILD_ROOT/usr/share/cockpit/
-cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/ntopng/
-cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/nprobe/
-cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/n2disk/
-cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cento/
-cp -r ../../dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cluster/
+cp -r @SRC_ROOT@/plugins/* $RPM_BUILD_ROOT/usr/share/cockpit/
+cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/ntopng/
+cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/nprobe/
+cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/n2disk/
+cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cento/
+cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cluster/
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
-cp ../../system/etc/systemd/system/nbox-*.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
+cp @SRC_ROOT@/system/etc/systemd/system/nbox-*.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
 
 # Clean out our build directory
 %clean

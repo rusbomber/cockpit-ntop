@@ -10,6 +10,7 @@ PLATFORM=`uname -p`
 TODAY=`date +%y%m%d`
 DATE=`date -R`
 CHANGELOG_DATE=`date "+%a %b %d %Y"`
+SRC_ROOT=`pwd`
 
 if test -d .git; then
   GIT_REVISION=`git log --pretty=oneline | wc -l`
@@ -36,6 +37,7 @@ AC_SUBST(CHANGELOG_DATE)
 AC_SUBST(TODAY)
 AC_SUBST(MACHINE)
 AC_SUBST(PACKAGE_VERSION)
+AC_SUBST(SRC_ROOT)
 AC_SUBST(GIT_REVISION)
 AC_SUBST(EXTRA_DEPS)
 AC_SUBST(RPM_SIGN_CMD)
