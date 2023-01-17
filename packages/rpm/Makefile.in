@@ -3,7 +3,7 @@ all: clean build
 PLATFORM=noarch
 REVISION=@GIT_REVISION@
 
-NBOXUI_PKG=nboxui-@PACKAGE_VERSION@-$(GIT_REVISION).rpm
+NBOXUI_PKG=nboxui-@PACKAGE_VERSION@-$(REVISION).$(PLATFORM).rpm
 
 dist:
 	# Using pre-built dist, uncomment the line below to rebuild

@@ -5,6 +5,7 @@ Release: %{buildnumber}
 License: Proprietary
 Group: Networking/Utilities
 URL: http://www.ntop.org/
+BuildArch: noarch
 Source: nboxui-%{version}.tgz
 Packager: Alfredo Cardigliano <cardigliano@ntop.org>
 # Temporary location where the RPM will be built
