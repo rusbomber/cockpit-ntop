@@ -29,7 +29,22 @@ apt install npm
    - cento
    - pf_ring
 
+
+## Installation
+
+Go to https://packages.ntop.org/ and configure the ntop packaging system for your platform according to the intstruction you will find on the site. Then follow the instructions below.
+
+
+- Debian/Ubuntu:
+   - `apt install nboxui`
+   
+- RedHat/Rocky Linux:
+   - `yum install nboxui`
+   - `systemctl enable --now cockpit.socket`
+
 ## Development
+
+This section is relevant only if you plan to contribute to nBox UI development.
 
 ### Project Setup
 
@@ -55,28 +70,9 @@ npm run build
 sudo make build-install
 ```
 
-## Production
 
 ### Install (pre-compiled dist) in Cockpit
 
 ```sh
 sudo make install
 ```
-
-### Install from packages on Ubuntu
-
-Install the repository from https://packages.ntop.org/apt/ and run:
-
-```sh
-apt update && apt install nboxui
-```
-
-### Install from packages on Rocky Linux
-
-Install the repository from https://packages.ntop.org/centos/ and run:
-
-```sh
-yum update && yum install nboxui
-systemctl enable --now cockpit.socket
-```
-
