@@ -1,5 +1,5 @@
 {
-    "version": @PACKAGE_VERSION@,
+    "version": @NBOXUI_VERSION@,
 
     "menu": {
         "ntopng": {
