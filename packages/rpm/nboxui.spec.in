@@ -50,6 +50,7 @@ fi
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/cockpit
 cp -r @SRC_ROOT@/plugins/* $RPM_BUILD_ROOT/usr/share/cockpit/
+rm $RPM_BUILD_ROOT/usr/share/cockpit/*/*.in
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/ntopng/
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/nprobe/
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/n2disk/
