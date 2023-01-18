@@ -62,3 +62,21 @@ sudo make build-install
 ```sh
 sudo make install
 ```
+
+### Install from packages on Ubuntu
+
+Install the repository from https://packages.ntop.org/apt/ and run:
+
+```sh
+apt update && apt install nboxui
+```
+
+### Install from packages on Rocky Linux
+
+Install the repository from https://packages.ntop.org/centos/ and run:
+
+```sh
+yum update && yum install nboxui
+systemctl enable --now cockpit.socket
+```
+
