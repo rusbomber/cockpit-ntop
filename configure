@@ -3095,7 +3095,7 @@ ac_config_files="$ac_config_files Makefile"
 
 TODAY=`date +%y%m%d`
 
-PACKAGE_VERSION=0.9.$TODAY
+PACKAGE_VERSION=3.9.$TODAY
 
 MACHINE=`uname -m`
 PLATFORM=`uname -p`
