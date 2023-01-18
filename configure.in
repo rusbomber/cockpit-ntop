@@ -3,11 +3,12 @@ AC_INIT([nboxui], 1.0)
 AC_PROG_CC
 AC_CONFIG_FILES(Makefile)
 
-PACKAGE_VERSION=3.99
+TODAY=`date +%y%m%d`
+
+PACKAGE_VERSION=3.99.$TODAY
 
 MACHINE=`uname -m`
 PLATFORM=`uname -p`
-TODAY=`date +%y%m%d`
 DATE=`date -R`
 CHANGELOG_DATE=`date "+%a %b %d %Y"`
 SRC_ROOT=`pwd`
