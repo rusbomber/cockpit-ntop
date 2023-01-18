@@ -10,7 +10,7 @@ Source: nboxui-%{version}.tgz
 Packager: Alfredo Cardigliano <cardigliano@ntop.org>
 # Temporary location where the RPM will be built
 BuildRoot:  %{_tmppath}/%{name}-%{version}-root
-Requires: cockpit, cockpit-navigator, rrdtool, redis >= 2.4.0
+Requires: cockpit, rrdtool, redis >= 2.4.0
 # Disable shared libs dependency check
 AutoReqProv: no
 
