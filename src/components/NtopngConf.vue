@@ -29,7 +29,7 @@
 			<small class="form-text text-muted">Local networks in CIDR format (e.g. 192.168.1.0/24) used to identify local hosts.</small>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group" v-if="!isEdge">
 			<h5>DNS Mode</h5>
 			<Multiselect v-model="dnsMode" mode="single" ref="dnsModeMultiselect" @change="onConfigChange()" :options="[
 			{ value: '0', label: 'Decode DNS responses and resolve local numeric IPs only' },
@@ -41,7 +41,7 @@
 			<small class="form-text text-muted">Address resolution mode used for displaying host names.</small>
 		</div>
 
-		<div class="form-group">
+		<div class="form-group" v-if="!isEdge">
 			<h5>Flow Collection</h5>
 			<Toggle v-model="flowCollectionSwitch" @change="onConfigChange()" />
 		</div>
@@ -106,6 +106,10 @@ const toast = useToast();
 const props = defineProps({
 	name: {
 		type: String,
+		required: true
+	},
+	isEdge: {
+		type: Boolean,
 		required: true
 	}
 })

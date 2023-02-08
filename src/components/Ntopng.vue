@@ -27,7 +27,7 @@
 	</div>
 </nav>
 
-<NtopngConf :name="instanceName" v-show="tab == 'configuration'" />
+<NtopngConf :name="instanceName" :isEdge="isEdge" v-show="tab == 'configuration'" />
 <LicenseConf :name="productName" :label="productLabel" v-show="tab == 'license'" />
 
 </div> <!-- installed -->
@@ -53,6 +53,7 @@ const instanceName = ref("Main")
 
 const productName = ref("ntopng")
 const productLabel = ref("ntopng")
+const isEdge = ref(false)
 
 const tab = ref("configuration")
 
@@ -60,7 +61,16 @@ onBeforeMount(async () => {
 	if (stubMode()) {
 		installed.value = true;
 	} else {
+		/* Detect ntopng binary */
 		installed.value = await fileExists("/usr/bin/ntopng");
+		if (!installed.value) {
+			/* Detect nEdge binary */
+			installed.value = await fileExists("/usr/bin/nedge");
+			if (installed.value) {
+				productLabel.value = "ntopng Edge";
+				isEdge.value = true;
+			}
+		}
 		notInstalled.value = !installed.value;
 	}
 });
