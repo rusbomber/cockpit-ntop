@@ -45,4 +45,6 @@ build-rpm:
 clean:
 	-rm -rf automate.cache
 	-rm -rf node_modules
-	-rm -rf dist
+	-rm -f plugins/*/manifest.json
+	-rm -f packages/nboxui_*
+	-rm -rf packages/rpm/nboxui-*
