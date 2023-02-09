@@ -19,7 +19,7 @@
 
 		<div class="form-group">
 			<h5>Interfaces</h5>
-			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="tags" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" />
+			<Multiselect v-model="selectedInterfaces" :options="interfacesList" mode="tags" placeholder="Select the interfaces" :close-on-select="false" ref="interfaceMultiselect" @change="onConfigChange()" @select="onInterfaceSelect()" />
 			<small class="form-text text-muted">Network interfaces used for packet capture.</small>
 		</div>
 
@@ -85,6 +85,23 @@
 </Modal>
 </div>
 
+<Modal ref="createInterfaceModal">
+	<template v-slot:title>
+		Add Custom Interface
+	</template>
+	<template v-slot:body>
+		<div class="form-group">
+			<h5>Interface Name</h5>
+			<input type="text" class="form-control" :class="{ 'border border-danger': interfaceModalInvalidInterfaceName }" ref="interfaceModalInterfaceName" @change="onInterfaceModalChange()" />
+			<small class="form-text text-muted">Specify the name of the custom interface to be created.</small>
+		</div>
+	</template>
+	<template v-slot:footer>
+		<button class="btn btn-primary" @click="createInterface(); createInterfaceModal.close()" :disabled="!interfaceModalValidationOk">Create</button>
+		<button class="btn btn-secondary" @click="createInterfaceModal.close()">Close</button>
+	</template>
+</Modal>
+
 </template>
 
 <script setup>
@@ -94,7 +111,7 @@ import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
 import TagInput from "./TagInput.vue";
-import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile } from "../functions";
+import { stubMode, isEndpoint, getLSBRelease, getNetworkInterfaces, isServiceActive, isServiceEnabled, toggleService, restartService, readConfigurationFile, parseConfiguration, writeConfigurationFile, isValidInterfaceName } from "../functions";
 
 const toast = useToast();
 
@@ -115,6 +132,8 @@ const props = defineProps({
 })
 
 const serviceName = "ntopng";
+
+const customInterfaceLabel = "Add Custom Interface..";
 
 /* Service status */
 const ntopngActive = ref(false);
@@ -139,6 +158,13 @@ const collapseEndpoint = ref(null)
 
 const validationOk = ref(true);
 const invalidFlowCollectionEndpoint = ref(false)
+
+/* Custom Interface Modal Form */
+const createInterfaceModal = ref(null)
+const interfaceModalInterfaceName = ref(null)
+
+const interfaceModalValidationOk = ref(true)
+const interfaceModalInvalidInterfaceName = ref(false)
 
 /* Data */
 const interfacesList = ref([]);
@@ -168,9 +194,26 @@ function appendAdvancedSettings(name, value) {
 }
 
 async function loadConfiguration() {
-	let configuration = []
+
+	/* Read interfaces */
+
+	let interface_names = []
+
+	if (stubMode()) {
+		interface_names = ['eno1', 'eno2'];
+	} else {
+		let interfaces = await getNetworkInterfaces();
+		interface_names = interfaces.map(info => info.name);
+	}
+
+	interface_names.push(customInterfaceLabel);
+
+	interfacesList.value = interface_names
 
 	/* Read configuration file, if any */
+
+	let configuration = []
+
 	if (stubMode()) {
 		configuration = [ 
 			{ name: '-i', value: 'eno1' }, 
@@ -199,6 +242,12 @@ async function loadConfiguration() {
 							flowCollectionEndpoint.value.value = option.value;
 						}
 					} else {
+						const found = interfacesList.value.find(ifname => ifname == option.value);
+						if (!found) {
+							/* Custom interface? Adding to the list.. */
+							interfacesList.value.unshift(option.value);
+						}
+
 						selectedInterfaces.value.push(option.value);
 						/* Note that the below is not working in Cockpit: 
 						 * interfaceMultiselect.value.select(option.value); */
@@ -271,20 +320,9 @@ async function saveConfiguration() {
 	}
 }
 
-/* Before mount: initialize configuration */
+/* Before mount */
 onBeforeMount(async () => {
-	let interface_names = []
-
 	updateServiceSwitch();
-
-	/* Read interfaces */
-	if (stubMode()) {
-		interface_names = ['eno1', 'eno2'];
-	} else {
-		let interfaces = await getNetworkInterfaces();
-		interface_names = interfaces.map(info => info.name);
-	}
-	interfacesList.value = interface_names
 });
 
 /* On service switch event: toggle service status */
@@ -325,6 +363,49 @@ function onConfigChange(e) {
 
 	/* Set config changed */
 	configChanged.value = true;
+}
+
+/* Called on modal form change to validate the custom interface name */
+function onInterfaceModalChange(e) {
+	/* Reset */
+	interfaceModalInvalidInterfaceName.value = false;
+
+	/* Validate */
+	const name = interfaceModalInterfaceName.value.value;
+	if (name && !isValidInterfaceName(name)) {
+		interfaceModalInvalidInterfaceName.value = true;
+	}
+	
+	/* Update global validation flag */
+	interfaceModalValidationOk.value = name && !interfaceModalInvalidInterfaceName.value;
+}
+
+/* Create a custom interface - called by the modal */
+function createInterface() {
+	const name = interfaceModalInterfaceName.value.value;
+	const found = interfacesList.value.find(ifname => ifname == name);
+	if (found) {
+		toast.warning(name + " already present");
+		return;
+	}
+
+	interfacesList.value.unshift(name);
+	selectedInterfaces.value.push(name);
+
+	/* Reset modal */
+	interfaceModalInterfaceName.value.value = '';
+}
+
+/* Called on interface selected */
+async function onInterfaceSelect(e) {
+	const custom_selected = selectedInterfaces.value.find(ifname => ifname == customInterfaceLabel);
+	if (custom_selected) {
+		selectedInterfaces.value = selectedInterfaces.value.filter(function(ifname) { return ifname !== customInterfaceLabel })
+		createInterfaceModal.value.show();
+		return;
+	}
+
+	onConfigChange(e);
 }
 
 /* On mount: load configuration from file */
