@@ -22,7 +22,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'nBox'
+project = u'nBox UI'
 copyright = u'2023, ntop.org'
 author = u'ntop.org'
 
@@ -87,7 +87,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'nbox.tex', u'nBox Documentation',
+    (master_doc, 'nbox.tex', u'nBox UI Documentation',
      u'ntop.org', 'manual'),
 ]
 
@@ -96,7 +96,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'nbox', u'nBox Documentation',
+    (master_doc, 'nbox', u'nBox UI Documentation',
      [author], 1)
 ]
 
@@ -106,7 +106,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'nbox', u'nBox Documentation',
+    (master_doc, 'nbox', u'nBox UI Documentation',
      author, 'nbox', 'Web-based GUI for managing ntop applications.',
      'Miscellaneous'),
 ]
