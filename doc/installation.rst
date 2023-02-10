@@ -7,14 +7,14 @@ at http://packages.ntop.org and installing the **nboxui** package.
 Debian/Ubuntu
 ~~~~~~~~~~~~~
 
-.. code-block::
+.. code-block:: console
 
    apt install nboxui
 
 RedHat/Rocky Linux
 ~~~~~~~~~~~~~~~~~~
 
-.. code-block::
+.. code-block:: console
 
    yum install nboxui
    systemctl enable --now cockpit.socket
