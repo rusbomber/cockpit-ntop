@@ -1,67 +1,78 @@
 Applications
 ============
 
-The Application menu allows the user to customise and control all the ntop applications installed and licensed.
+The nBox UI includes a menu entry for each ntop application that it is possible to configure through the Web interdace.
+The configuration pages allow the user to customise and control all the ntop applications installed and licensed, by
+managing configuration files and systemid services in a way which is fully compatible with manual configurations.
 
-.. image:: ../img/screenshots/applications.png
-
-Applications include ntopng, nProbe, n2disk, disk2n. The cluster is also part of the applications and it is used to load balance traffic across application instances, or to send the same traffic to multiple application instances (or combinations of both). The Utility section contains the nBox Activity Scheduler, which is used with n2disk for scheduling traffic extractions.
+Applications include ntopng, nProbe, nProbe Cento, n2disk. The Cluster is also part of the applications and it is used 
+to load balance traffic across application instances, or to send the same traffic to multiple application instances 
+(or combinations of both).
 
 ntopng
 ------
 
-The ntopng menu can be used to configure and enable the ntopng application. The page is provided to the user in a tabbed form, where its first tab is the status page for the application, used to start and stop it, while through the configure tab it is possible to customise ntopng directly from the web interface.
-A page with the same structure is available for all the applications.
+The ntopng page can be used to configure and enable the ntopng application. The page is provided to the user in a tabbed form,
+where its first tab is the Setup tab which allows the user to configure ntopng and control the service status. The License
+tab allows the user to set and check the License key to unlock Enterprise features. The Logs tab leads to the Logs page where
+logs are filtered and only those related to the ntopng service are shown.
 
-A grey box with the interface name is displayed in the status tab for each enabled instance. The presence of the grey box means that at least an instance of the application is configured. A button On/Off is available to start and stop the instance.
+In the Setup page, the user should:
 
-.. image:: ../img/screenshots/ntopng_status.png
+1. Check the ntopng settings
+2. Change the settings and save them using the Save Configuration button
+3. Run the service using the Switch at the top right of the configuration panel
 
-In the configuration tab, the user can select the automatic startup for ntopng, to automatically start upon reboot, and the interface where ntopng will listen for incoming packets. All the physical interfaces will be prompted to user, but also a “Collector only” can be chosen. This selection is normally used when ntopng is used as a Netflow collector, in this case ntopng does not need to capture packets directly from the network card.
+.. image:: ../img/screenshots/ntopng-conf.png
 
-.. image:: ../img/screenshots/ntopng_configuration.png
+When the switch is set to On, the switch itself is green is the service is up&running, otherwise it is red, meanind that
+there is a failure in the service (the Logs can be inspected in that case for more info) or it is still in the startup or
+shutdown process (waiting a few seconds should address this if this is the case).
 
-Many other settings are available through the configuration page, such as DNS resolution mode, local network subnets, etc. After configuring the ntopng instance, the “Save” button allows to store the configuration. Please note that is is not possible to change a configuration while the application instance is running.
+All the physical interfaces are provided in the Interfaces dropdown, those selected will be set in ntopng for capturing
+traffic. A Custom Interface option is also available in the dropdows, which allows the user to configure a custom interface
+name (this should be used to define logical interfaces, or to attach to a specific interface queue). 
+A Flow Collection option is also available to collect flows from probes (nProbe or nProbe Cento), for instance when collecting
+NetFlow collector (in this case ntopng does not need to capture packets directly from the network card).
+
+A few more settings are available through the configuration page, such as DNS resolution mode, local network subnets, etc. 
+Additional settings can be configured through the Advanced Settings section, using the syntax of the ntopng configuration file.
 
 nProbe
 ------
 
-The nProbe menu also contains several option that can be tweaked by the user. As in the ntopng menu, the nProbe configuration page is available in tabs. The first is the status tab and the following are configurations for each available network interface. The last one is for the Netflow proxy configuration.
-Several sections permit the customisation of nProbe for example in terms of flow export type and policy, disk based flow dump or database based flow dump. Some sections are dedicated to the customisation of some plugins.
+Similar to the ntopng page, the nProbe and nProbe Cento pages can be used to configure and control the corresponding applications.
+In this case, it is possible to create multiple instances of nProbe, each one with its configuration and service, throuth the Add
+Instance button in the top menu.
 
-.. image:: ../img/screenshots/nprobe_configuration_dump.png
+After creating, configuring and starting an nProbe instance, a chart appear at the top of the page, providing monitoring of
+the ingress traffic rate and the flow export rate. This is useful for monitoring the service activity as the service itself
+does not provide a GUI.
 
-Use the "Save Changes" button on the bottom of the page to commit changes as in all other pages. nBox gives to the user the ability to easily clone configuration among all the available interfaces using the “Clone from” button and selecting the configuration source.
-Please refer to the nProbe user manual for further informations about the nProbe configuration.
+.. image:: ../img/screenshots/nprobe-conf.png
 
 n2disk
 ------
 
-The n2disk section can be used to customise the configuration of n2disk, a network traffic recording application. It is possible for instance to set buffer and PCAP file size, snapshot length, CPU affinity, and so on. The figure below displays all the configurable sections.
+The n2disk page can be used to configure multiple n2disk services. Similar to the nProbe configuration page it is in fact
+possible to create multiple instances, configure and run them. Some charts are available also in this case, to monitor the
+captured traffic and the traffic dumped to disk with the I/O throughput. 
 
-.. image:: ../img/screenshots/n2disk_configuration.png
+In the configuration section it is possible to select the storage volume for dumping files, set the maximum space to 
+be used, the maximum size of each PCAP file dumped on disk. Additional settings (e.g. CPU affinity) can be configured in
+the Advanced Settings section.
 
-disk2n
-------
+.. image:: ../img/screenshots/n2disk-conf.png
 
-The disk2n section can be used to customise the configuration of the traffic replay application, used to reproduce traffic recorded with n2disk. In this section, user can show the disk2n instance configured or create a new one using the "+" tab.
+The Extractions tab allows the user to schedule extraction tasks to retrieve traffic out of all the PCAP files dumped
+on disk. A new extraction task can be created by clicking on the + button at the top-right of the panel, and specifying 
+the time interval and filter (BPF) to match packets, the source storage (as configured in n2disk), an output folder for the
+PCAP files generated, and a maximum size for the ourput files.
 
-.. image:: ../img/screenshots/disk2n_new.png
+.. image:: ../img/screenshots/n2disk-extraction.png
 
-In the instance configuration tab, the user can tweak disk2n parameters such as egress interfaces, timeline path, source traffic time interval, buffer size, CPU affinity. The figure below displays the configurable sections. 
+After creating a new extraction task, a new entry is added to the Extractions table, where it is possible to check
+the extraction status, and jump to the Navigator for downloading the extracted files.
 
-.. image:: ../img/screenshots/disk2n_configuration.png
-
-Activity Scheduler
-------------------
-
-The Activity Scheduler is a tool used to schedule  tasks such as traffic extractions from the n2disk storage.
-
-.. image:: ../img/screenshots/activity_scheduler.png
-
-In this section, the user can see all the scheduled tasks, retrieve the log, the PCAP files extracted, the task configuration, or delete a  task and the corresponding files.
-The user can create a new extraction task from an existing n2disk instance using the Extract button in the n2disk status page.
-Interfaces, task priority, time interval, bpf filter, output directory are some of the options available
-
-.. image:: ../img/screenshots/extract_packet.png
+.. image:: ../img/screenshots/n2disk-scheduler.png
 
