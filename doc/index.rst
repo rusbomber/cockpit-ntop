@@ -1,7 +1,9 @@
-nBox Documentation
-==================
+nBox UI Documentation
+=====================
 
-nBox is a web-based interface that can simplify your configurations, assist with complex things such as core affinity or drivers configuration, and let you focus on using ntop applications rather than on their configuration. nBox can be used to configure and run ntopng, nProbe, n2disk, disk2n and configure the packet capture framework including the PF_RING kernel module, Zero-Copy drivers and clustering.
+nBox UI is a web-based interface that can simplify the ntop's software configurations, assist with complex things
+such as creating configuration files, and let you focus on using ntop applications rather than on their configuration.
+nBox can be used to configure and run ntopng, nProbe, nProbe Cento, n2disk and the PF_RING ZC Cluster.
 
 .. toctree::
    :maxdepth: 2
@@ -10,7 +12,6 @@ nBox is a web-based interface that can simplify your configurations, assist with
    introduction
    installation
    usage/index
-   nxn/index
 
 .. toctree::
    :caption: Other Products
