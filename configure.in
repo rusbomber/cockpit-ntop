@@ -11,6 +11,7 @@ PACKAGE_VERSION=$NBOXUI_VERSION.$TODAY
 MACHINE=`uname -m`
 PLATFORM=`uname -p`
 DATE=`date -R`
+YEAR=`date "+%Y"`
 CHANGELOG_DATE=`date "+%a %b %d %Y"`
 SRC_ROOT=`pwd`
 
@@ -37,6 +38,7 @@ EXTRA_DEPS=""
 AC_SUBST(DATE)
 AC_SUBST(CHANGELOG_DATE)
 AC_SUBST(TODAY)
+AC_SUBST(YEAR)
 AC_SUBST(MACHINE)
 AC_SUBST(NBOXUI_VERSION)
 AC_SUBST(PACKAGE_VERSION)
@@ -56,4 +58,5 @@ AC_CONFIG_FILES(plugins/cluster/manifest.json)
 AC_CONFIG_FILES(plugins/n2disk/manifest.json)
 AC_CONFIG_FILES(plugins/nprobe/manifest.json)
 AC_CONFIG_FILES(plugins/ntopng/manifest.json)
+AC_CONFIG_FILES(doc/conf.py)
 AC_OUTPUT
