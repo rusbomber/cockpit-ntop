@@ -620,6 +620,7 @@ GIT_REVISION
 SRC_ROOT
 NBOXUI_VERSION
 MACHINE
+YEAR
 TODAY
 CHANGELOG_DATE
 DATE
@@ -3102,6 +3103,7 @@ PACKAGE_VERSION=$NBOXUI_VERSION.$TODAY
 MACHINE=`uname -m`
 PLATFORM=`uname -p`
 DATE=`date -R`
+YEAR=`date "+%Y"`
 CHANGELOG_DATE=`date "+%a %b %d %Y"`
 SRC_ROOT=`pwd`
 
@@ -3136,6 +3138,7 @@ EXTRA_DEPS=""
 
 
 
+
 ac_config_files="$ac_config_files packages/deb/Makefile"
 
 ac_config_files="$ac_config_files packages/deb/debian.nboxui/changelog"
@@ -3157,6 +3160,8 @@ ac_config_files="$ac_config_files plugins/n2disk/manifest.json"
 ac_config_files="$ac_config_files plugins/nprobe/manifest.json"
 
 ac_config_files="$ac_config_files plugins/ntopng/manifest.json"
+
+ac_config_files="$ac_config_files doc/conf.py"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3870,6 +3875,7 @@ do
     "plugins/n2disk/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/n2disk/manifest.json" ;;
     "plugins/nprobe/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/nprobe/manifest.json" ;;
     "plugins/ntopng/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/ntopng/manifest.json" ;;
+    "doc/conf.py") CONFIG_FILES="$CONFIG_FILES doc/conf.py" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
