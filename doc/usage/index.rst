@@ -38,4 +38,3 @@ Each nBox web page comes in a three section format: header, where a menu bar is 
     licenses
     applications
     admin
-    nxn
