@@ -13,6 +13,7 @@
 </div>
 
 <div class="configuration">
+
 <div class="card w-100">
 	<div class="card-header">
 		<div class="card-title">

@@ -2,6 +2,7 @@
 <template>
 
 <div class="configuration">
+
 <div class="card w-100">
 	<div class="card-header">
 		<div class="card-title">
@@ -83,7 +84,6 @@
 		<button class="btn btn-secondary" @click="onApplyModal.close()">Close</button>
 	</template>
 </Modal>
-</div>
 
 <Modal ref="createInterfaceModal">
 	<template v-slot:title>
@@ -102,6 +102,7 @@
 	</template>
 </Modal>
 
+</div>
 </template>
 
 <script setup>

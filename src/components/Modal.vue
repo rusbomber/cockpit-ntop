@@ -1,6 +1,5 @@
 <template>
-<div @submit.prevent="preventEnter" class="modal fade" ref="modalID" tabindex="-1" role="dialog" aria-labelledby="dt-add-filter-modal-title"
-     aria-hidden="true">
+<div @submit.prevent="preventEnter" class="modal fade" ref="modalID" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
