@@ -4,7 +4,8 @@
     "menu": {
         "n2disk": {
             "label": "n2disk",
-            "path": "index.html"
+            "path": "index.html",
+            "order": 903
         }
     }
 }

@@ -4,7 +4,8 @@
     "menu": {
         "cluster": {
             "label": "Cluster",
-            "path": "index.html"
+            "path": "index.html",
+            "order": 904
         }
     }
 }

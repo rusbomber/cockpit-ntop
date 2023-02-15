@@ -4,6 +4,7 @@
 	<N2disk v-if="product == 'n2disk'" />
 	<Cento  v-if="product == 'cento'" />
 	<Cluster v-if="product == 'cluster'" />
+	<Preferences v-if="product == 'preferences'" />
 </template>
 
 <style scoped>
@@ -16,6 +17,7 @@ import Nprobe from './components/Nprobe.vue'
 import N2disk from './components/N2disk.vue'
 import Cento  from './components/Cento.vue'
 import Cluster  from './components/Cluster.vue'
+import Preferences  from './components/Preferences.vue'
 
 const product = ref('')
 
@@ -33,7 +35,7 @@ onBeforeMount(async () => {
 	else if (pathname.includes('/cluster/'))
 		product.value = 'cluster';
 	else
-		product.value = 'nprobe';
+		product.value = 'preferences';
 });
 
 </script>

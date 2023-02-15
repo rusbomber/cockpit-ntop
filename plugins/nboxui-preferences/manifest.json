@@ -1,0 +1,11 @@
+{
+    "version": 3.9,
+
+    "menu": {
+        "nboxui-preferences": {
+            "label": "nBox Preferences",
+            "path": "index.html",
+            "order": 909
+        }
+    }
+}

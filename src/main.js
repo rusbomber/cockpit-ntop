@@ -9,8 +9,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* FontAwesome icons */
-import { faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart, faMagnifyingGlass, faFilter, faFolderOpen, faScroll, faFileCirclePlus, faFileWaveform, faIdCard, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
-library.add(faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart, faMagnifyingGlass, faFilter, faFolderOpen, faScroll, faFileCirclePlus, faFileWaveform, faIdCard, faTriangleExclamation)
+import { faBell, faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart, faMagnifyingGlass, faFilter, faFolderOpen, faScroll, faFileCirclePlus, faFileWaveform, faIdCard, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+library.add(faBell, faAngleDown, faDownload, faDesktop, faEthernet, faBezierCurve, faFileLines, faPlus, faCircleCheck, faUserCheck, faSpinner, faTrash, faHourglassStart, faMagnifyingGlass, faFilter, faFolderOpen, faScroll, faFileCirclePlus, faFileWaveform, faIdCard, faTriangleExclamation)
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"

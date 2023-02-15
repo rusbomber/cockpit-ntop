@@ -2,10 +2,10 @@
     "version": @NBOXUI_VERSION@,
 
     "menu": {
-        "cento": {
-            "label": "Cento",
+        "nboxui-preferences": {
+            "label": "nBox Preferences",
             "path": "index.html",
-            "order": 902
+            "order": 909
         }
     }
 }

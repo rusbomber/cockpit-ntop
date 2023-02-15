@@ -22,11 +22,6 @@ export function isValidFilter(filter) {
 	return true; //TODO
 }
 
-export async function createPath(path, owner) {
-	await cockpit.spawn(["mkdir", "-p", path], {superuser:"require"});
-	await cockpit.spawn(["chown", owner, path], {superuser:"require"});
-}
-
 export function isEndpoint(str) {
 	var pattern = new RegExp('^((tcp|zmq|kafka):\\/\\/)?'+ // tcp:// or zmq:// or kafka://
 		'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
@@ -38,12 +33,29 @@ export function isEndpoint(str) {
 	return pattern.test(str);
 }
 
+export function isURL(str) {
+	let url;
+
+	try {
+		url = new URL(str);
+	} catch (err) {
+		return false;  
+	}
+
+	return url.protocol === "http:" || url.protocol === "https:";
+}
+
 export function isIPPort(str) {
 	var pattern = new RegExp('^((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // hostname
 		'((\\d{1,3}\\.){3}\\d{1,3}))'+ // or IP (v4) address
 		'(\\:\\d+)?'+ // port
 		'$','i');
 	return pattern.test(str);
+}
+
+export async function createPath(path, owner) {
+	await cockpit.spawn(["mkdir", "-p", path], {superuser:"require"});
+	await cockpit.spawn(["chown", owner, path], {superuser:"require"});
 }
 
 export async function getNetworkInterfaces() {
@@ -289,6 +301,7 @@ export async function writeConfigurationFile(product, configuration, instance) {
 
 	const content = serializeConfiguration(configuration);
 
+	await createPath("/etc/" + product, "root");
 	await writeFile(path, content);
 }
 
@@ -324,6 +337,7 @@ export async function writeMetadata(product, configuration, instance) {
 
 	const content = JSON.stringify(configuration);
 
+	await createPath("/etc/" + product, "root");
 	await writeFile(path, content);
 }
 
@@ -359,6 +373,30 @@ export async function getConfigurationFileList(product) {
 	});
 
 	return instances;
+}
+
+export async function readSettings(section) {
+	let configuration = {};
+
+	const full_configuration = await readMetadata("nboxui");
+
+	if (full_configuration && full_configuration[section]) {
+		configuration = full_configuration[section];
+	}
+
+	return configuration;
+}
+
+export async function writeSettings(section, configuration) {
+	let full_configuration = await readMetadata("nboxui");
+
+	if (!full_configuration) {
+		full_configuration = {};
+	}
+
+	full_configuration[section] = configuration;
+
+	writeMetadata("nboxui", full_configuration);
 }
 
 export async function getRRDData(application, instance, minutes) {
@@ -409,7 +447,7 @@ export async function getRRDData(application, instance, minutes) {
 		}
 	})
 	.catch(function (exception) {
-		//console.log("Failure reading RRD " + path);
+	//console.log("Failure reading RRD " + path);
 		//console.log(exception);
 	});
 	

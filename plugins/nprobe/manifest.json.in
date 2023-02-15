@@ -4,7 +4,8 @@
     "menu": {
         "nprobe": {
             "label": "nProbe",
-            "path": "index.html"
+            "path": "index.html",
+            "order": 901
         }
     }
 }

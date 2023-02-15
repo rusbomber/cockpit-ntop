@@ -58,5 +58,6 @@ AC_CONFIG_FILES(plugins/cluster/manifest.json)
 AC_CONFIG_FILES(plugins/n2disk/manifest.json)
 AC_CONFIG_FILES(plugins/nprobe/manifest.json)
 AC_CONFIG_FILES(plugins/ntopng/manifest.json)
+AC_CONFIG_FILES(plugins/nboxui-preferences/manifest.json)
 AC_CONFIG_FILES(doc/conf.py)
 AC_OUTPUT
