@@ -288,7 +288,7 @@ function computeConfiguration() {
 
 	if (localNetworks.value.length > 0) {
 		form_configuration.push({ name: '-m', value: localNetworks.value.join(',') });
-		console.log(localNetworks.value.join(','));
+		//console.log(localNetworks.value.join(','));
 	}
 
 	if (flowCollectionSwitch.value && flowCollectionEndpoint.value) {
@@ -305,19 +305,32 @@ function computeConfiguration() {
 async function saveConfiguration() {
 	const configuration = computeConfiguration()
 
+	let success = false;
+	let message = "";
+
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
-		await writeConfigurationFile(serviceName, configuration);
+		try {
+			success = await writeConfigurationFile(serviceName, configuration);
+		} catch (err) {
+			if (err.message) {
+				message = err.message;
+			}
+		}
 	}
 
-	/* Update configChanged with timeout to handle async updates triggering change event */
-	setTimeout(() => (configChanged.value = false), 100);
+	if (success) {
+		toast.success("Configuration saved!");
 
-	toast.success("Configuration saved!");
+		/* Update configChanged with timeout to handle async updates triggering change event */
+		setTimeout(() => (configChanged.value = false), 100);
 
-	if (ntopngEnabled.value) {
-		onApplyModal.value.show();
+		if (ntopngEnabled.value) {
+			onApplyModal.value.show();
+		}
+	} else {
+		toast.warning("Unable to write the configuration. " + message);
 	}
 }
 

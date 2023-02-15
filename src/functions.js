@@ -276,10 +276,12 @@ export async function writeFile(path, content) {
 	const file = cockpit.file(path, { superuser: 'try' });
 
 	if (!file) {
-		return;
+		return false;
 	}
 
 	await file.replace(content);
+
+	return true
 }
 
 export async function readConfigurationFile(product, instance) {
@@ -302,7 +304,7 @@ export async function writeConfigurationFile(product, configuration, instance) {
 	const content = serializeConfiguration(configuration);
 
 	await createPath("/etc/" + product, "root");
-	await writeFile(path, content);
+	return await writeFile(path, content);
 }
 
 export async function deleteConfigurationFile(product, instance) {
@@ -338,7 +340,7 @@ export async function writeMetadata(product, configuration, instance) {
 	const content = JSON.stringify(configuration);
 
 	await createPath("/etc/" + product, "root");
-	await writeFile(path, content);
+	return await writeFile(path, content);
 }
 
 export async function deleteMetadata(product, instance) {
@@ -396,7 +398,7 @@ export async function writeSettings(section, configuration) {
 
 	full_configuration[section] = configuration;
 
-	writeMetadata("nboxui", full_configuration);
+	return await writeMetadata("nboxui", full_configuration);
 }
 
 export async function getRRDData(application, instance, minutes) {

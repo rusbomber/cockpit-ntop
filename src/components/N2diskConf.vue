@@ -457,27 +457,40 @@ async function saveConfiguration() {
 	const configuration = computeConfiguration();
 	const metadata = computeMetadata();
 
+	let success = false;
+	let message = "";
+
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
-		/* Write configuration and metadata */
-		await writeConfigurationFile(serviceName, configuration, props.name);
-		await writeMetadata(serviceName, metadata, props.name);
+		try {
+			/* Create n2disk folder */
+			const storageDefined = configuration.find(element => (element.name == '-O' || element.name == '--dump-directory'));
+			if (storageDefined) {
+				await createPath(storageDefined.value /* path */, "n2disk" /* user */)
+			}
 
-		/* Create n2disk folder */
-		const storageDefined = configuration.find(element => (element.name == '-O' || element.name == '--dump-directory'));
-		if (storageDefined) {
-			await createPath(storageDefined.value /* path */, "n2disk" /* user */)
+			/* Write configuration and metadata */
+			await writeMetadata(serviceName, metadata, props.name);
+			success = await writeConfigurationFile(serviceName, configuration, props.name);
+		} catch (err) {
+			if (err.message) {
+				message = err.message;
+			}
 		}
 	}
 
-	/* Update configChanged with timeout to handle async updates triggering change event */
-	setTimeout(() => (configChanged.value = false), 100);
+	if (success) {
+		toast.success("Configuration saved!");
+	
+		/* Update configChanged with timeout to handle async updates triggering change event */
+		setTimeout(() => (configChanged.value = false), 100);
 
-	toast.success("Configuration saved!");
-
-	if (n2diskEnabled.value) {
-		onApplyModal.value.show();
+		if (n2diskEnabled.value) {
+			onApplyModal.value.show();
+		}
+	} else {
+		toast.warning("Unable to write the configuration. " + message);
 	}
 }
 

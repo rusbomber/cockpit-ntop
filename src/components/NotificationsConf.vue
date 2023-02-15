@@ -36,6 +36,14 @@
 			</div>
 		</div>
 
+		<div class="form-floating">
+			<div class="form-group">
+				<h5>Remote Syslog Server</h5>
+				<input type="text" class="form-control" :class="{ 'border border-danger': invalidSyslogAddr }" ref="syslogAddr" @change="onConfigChange()" />
+				<small class="form-text text-muted">Address of a remote Syslog server (or <a href="https://www.ntop.org/guides/ntopng/advanced_features/syslog.html" target="_blank">ntopng</a>) for delivering alerts via TCP (e.g. 192.168.1.1:514)</small>
+			</div>
+		</div>
+
 	</div>
 
 	<div class="card-footer">
@@ -54,7 +62,7 @@ import { useToast } from "vue-toastification";
 import Multiselect from '@vueform/multiselect'
 import Toggle from '@vueform/toggle'
 import Modal from './Modal.vue'
-import { stubMode, getLSBRelease, isURL, readSettings, writeSettings } from "../functions";
+import { stubMode, getLSBRelease, isURL, isIPPort, readSettings, writeSettings } from "../functions";
 
 const toast = useToast();
 
@@ -71,12 +79,14 @@ const verbosityLevel = ref("all");
 
 /* Form data */
 const webhookURL = ref(null)
+const syslogAddr = ref(null)
 const verbosityMultiselect = ref(null);
 const alertsSwitch = ref(false)
 const configChanged = ref(false)
 
 const validationOk = ref(true);
 const invalidWebhookURL = ref(false)
+const invalidSyslogAddr = ref(false)
 
 async function loadConfiguration() {
 
@@ -111,6 +121,12 @@ async function loadConfiguration() {
 		}
 	}
 
+	if (configuration['syslog']) {
+		if (configuration['syslog']['address']) {
+			syslogAddr.value.value = configuration['syslog']['address'];
+		}
+	}
+
 	/* Update configChanged with timeout to handle async updates triggering change event */
 	setTimeout(() => (configChanged.value = false), 100);
 }
@@ -126,22 +142,39 @@ function computeConfiguration() {
 		url: webhookURL.value.value
 	}
 
+	form_configuration['syslog'] = {
+		address: syslogAddr.value.value
+	}
+
 	return form_configuration;
 }
 
 async function saveConfiguration() {
 	const configuration = computeConfiguration()
 
+	let success = false;
+	let message = "";
+
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
-		await writeSettings("notifications", configuration);
+		try {
+			success = await writeSettings("notifications", configuration);
+		} catch (err) {
+			if (err.message) {
+				message = err.message;
+			}
+		}
 	}
 
-	/* Update configChanged with timeout to handle async updates triggering change event */
-	setTimeout(() => (configChanged.value = false), 100);
+	if (success) {
+		toast.success("Configuration saved!");
 
-	toast.success("Configuration saved!");
+		/* Update configChanged with timeout to handle async updates triggering change event */
+		setTimeout(() => (configChanged.value = false), 100);
+	} else {
+		toast.warning("Unable to write the configuration. " + message);
+	}
 }
 
 /* Before mount */
@@ -157,15 +190,21 @@ function onConfigChange(e) {
 
 	/* Reset */
 	invalidWebhookURL.value = false;
+	invalidSyslogAddr.value = false;
 
 	/* Validate */
 	const endpoint = webhookURL.value.value;
 	if (endpoint && !isURL(endpoint)) {
 		invalidWebhookURL.value = true;
 	}
-	
+
+	const addr = syslogAddr.value.value;
+	if (addr && !isIPPort(addr)) {
+		invalidSyslogAddr.value = true;
+	}
+
 	/* Update global validation flag */
-	validationOk.value = !invalidWebhookURL.value;
+	validationOk.value = !invalidWebhookURL.value && !invalidSyslogAddr.value;
 
 	/* Set config changed */
 	configChanged.value = true;

@@ -381,20 +381,33 @@ async function saveConfiguration() {
 	const configuration = computeConfiguration();
 	const metadata = computeMetadata();
 
+	let success = false;
+	let message = "";
+
 	if (stubMode()) {
 		console.log(configuration);
 	} else {
-		await writeConfigurationFile(serviceName, configuration, props.name);
-		await writeMetadata(serviceName, metadata, props.name);
+		try {
+			await writeMetadata(serviceName, metadata, props.name);
+			success = await writeConfigurationFile(serviceName, configuration, props.name);
+		} catch (err) {
+			if (err.message) {
+				message = err.message;
+			}
+		}
 	}
 
-	/* Update configChanged with timeout to handle async updates triggering change event */
-	setTimeout(() => (configChanged.value = false), 100);
+	if (success) {
+		toast.success("Configuration saved!");
 
-	toast.success("Configuration saved!");
+		/* Update configChanged with timeout to handle async updates triggering change event */
+		setTimeout(() => (configChanged.value = false), 100);
 
-	if (nprobeEnabled.value) {
-		onApplyModal.value.show();
+		if (nprobeEnabled.value) {
+			onApplyModal.value.show();
+		}
+	} else {
+		toast.warning("Unable to write the configuration. " + message);
 	}
 }
 
