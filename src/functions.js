@@ -380,7 +380,7 @@ export async function getConfigurationFileList(product) {
 export async function readSettings(section) {
 	let configuration = {};
 
-	const full_configuration = await readMetadata("nboxui");
+	const full_configuration = await readMetadata("nbox");
 
 	if (full_configuration && full_configuration[section]) {
 		configuration = full_configuration[section];
@@ -390,7 +390,7 @@ export async function readSettings(section) {
 }
 
 export async function writeSettings(section, configuration) {
-	let full_configuration = await readMetadata("nboxui");
+	let full_configuration = await readMetadata("nbox");
 
 	if (!full_configuration) {
 		full_configuration = {};
@@ -398,7 +398,7 @@ export async function writeSettings(section, configuration) {
 
 	full_configuration[section] = configuration;
 
-	return await writeMetadata("nboxui", full_configuration);
+	return await writeMetadata("nbox", full_configuration);
 }
 
 export async function getRRDData(application, instance, minutes) {

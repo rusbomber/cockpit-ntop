@@ -70,9 +70,9 @@ binary-arch: build install
 	cp -vr ../../plugins/cluster/manifest.json ./debian/nboxui/usr/share/cockpit/cluster/
 	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/cluster/
 	# Preferences
-	mkdir -p ./debian/nboxui/usr/share/cockpit/nboxui-preferences
-	cp -vr ../../plugins/nboxui-preferences/manifest.json ./debian/nboxui/usr/share/cockpit/nboxui-preferences/
-	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/nboxui-preferences/
+	mkdir -p ./debian/nboxui/usr/share/cockpit/nbox-preferences
+	cp -vr ../../plugins/nbox-preferences/manifest.json ./debian/nboxui/usr/share/cockpit/nbox-preferences/
+	cp -vr ../../dist/* ./debian/nboxui/usr/share/cockpit/nbox-preferences/
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

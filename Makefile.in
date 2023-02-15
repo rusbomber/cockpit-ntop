@@ -30,10 +30,10 @@ dist-install:
 	cp -r plugins/cluster/* /usr/share/cockpit/cluster/
 	cp -r dist/* /usr/share/cockpit/cluster/
 	# global preferences
-	rm -rf /usr/share/cockpit/nboxui-preferences
-	mkdir /usr/share/cockpit/nboxui-preferences
-	cp -r plugins/nboxui-preferences/* /usr/share/cockpit/nboxui-preferences/
-	cp -r dist/* /usr/share/cockpit/nboxui-preferences/
+	rm -rf /usr/share/cockpit/nbox-preferences
+	mkdir /usr/share/cockpit/nbox-preferences
+	cp -r plugins/nbox-preferences/* /usr/share/cockpit/nbox-preferences/
+	cp -r dist/* /usr/share/cockpit/nbox-preferences/
 	# branding
 	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
 

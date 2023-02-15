@@ -3161,7 +3161,7 @@ ac_config_files="$ac_config_files plugins/nprobe/manifest.json"
 
 ac_config_files="$ac_config_files plugins/ntopng/manifest.json"
 
-ac_config_files="$ac_config_files plugins/nboxui-preferences/manifest.json"
+ac_config_files="$ac_config_files plugins/nbox-preferences/manifest.json"
 
 ac_config_files="$ac_config_files doc/conf.py"
 
@@ -3877,7 +3877,7 @@ do
     "plugins/n2disk/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/n2disk/manifest.json" ;;
     "plugins/nprobe/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/nprobe/manifest.json" ;;
     "plugins/ntopng/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/ntopng/manifest.json" ;;
-    "plugins/nboxui-preferences/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/nboxui-preferences/manifest.json" ;;
+    "plugins/nbox-preferences/manifest.json") CONFIG_FILES="$CONFIG_FILES plugins/nbox-preferences/manifest.json" ;;
     "doc/conf.py") CONFIG_FILES="$CONFIG_FILES doc/conf.py" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

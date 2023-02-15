@@ -2,7 +2,7 @@
     "version": @NBOXUI_VERSION@,
 
     "menu": {
-        "nboxui-preferences": {
+        "nbox-preferences": {
             "label": "nBox Preferences",
             "path": "index.html",
             "order": 909
