@@ -5,7 +5,7 @@
 
 const conf_file = "/etc/nbox/nbox.json";
 const log_file = "/var/log/nbox-notify.log";
-const debug = true;
+const debug = false;
 
 const os = require("os");
 const fs = require('fs')
@@ -70,9 +70,30 @@ async function notify_to_webhook(event_data, url) {
 	}
 }
 
+function build_syslog_header(severity, service, pid) {
+	/* Facility: 14 log alert */
+	let facility = 14
+
+	/* Level: 1 alert, 5 notice */
+	let level = 5;
+	if (severity == 'alert') level = 1;
+
+	let prio = (facility * 8) + level
+
+	let host = os.hostname();
+
+	let d = new Date();
+	let month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+	let day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+	let time = d.toLocaleTimeString('en-US', { hour12: false });
+
+	return `<${prio}>${month} ${day} ${time} ${host} ${service}[${pid}]: `;
+}
+
 async function notify_to_syslog_remote(event_data, address, format) {
 	/* Build Message */
 	let event_name = event_data.event;
+	let severity = 'info';
 
 	switch (event_data.event) {
 		case 'start':
@@ -83,6 +104,7 @@ async function notify_to_syslog_remote(event_data, address, format) {
 			    event_data.exit_status == "0") {
 				event_name = "shutted down";
 			} else {
+				severity = 'alert';
 				event_name = "died";
 				if (event_data.exit_status) {
 					event_name += " (" + event_data.exit_status + ")";
@@ -91,13 +113,13 @@ async function notify_to_syslog_remote(event_data, address, format) {
 			break;
 	}
 
-	let message = '';
+	let message = build_syslog_header(severity, event_data.service_name, 0);
 
 	if (format && format == 'json') {
-		message = JSON.stringify(event_data);
+		message += JSON.stringify(event_data);
 
 	} else /* 'text' */ {
-		message = event_data.service_name;
+		message += event_data.service_name;
 		if (event_data.instance_name) {
 			message += "@" + event_data.instance_name;
 		}
