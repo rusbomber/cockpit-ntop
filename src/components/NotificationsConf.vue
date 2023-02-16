@@ -50,7 +50,7 @@
 			{ value: 'text', label: 'Text' },
 			{ value: 'json', label: 'JSON' },
 		]" />
-			<small class="form-text text-muted">Format for messages delivered to the remote Syslog server.</small>
+			<small class="form-text text-muted">Format for messages delivered to the remote Syslog server. JSON is required for ntopng.</small>
 		</div>
 
 	</div>
