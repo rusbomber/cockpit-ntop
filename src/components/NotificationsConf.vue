@@ -44,6 +44,15 @@
 			</div>
 		</div>
 
+		<div class="form-group">
+			<h5>Syslog Format</h5>
+			<Multiselect v-model="syslogFormat" mode="single" ref="syslogFormatMultiselect" @change="onConfigChange()" :options="[
+			{ value: 'text', label: 'Text' },
+			{ value: 'json', label: 'JSON' },
+		]" />
+			<small class="form-text text-muted">Format for messages delivered to the remote Syslog server.</small>
+		</div>
+
 	</div>
 
 	<div class="card-footer">
@@ -76,11 +85,13 @@ const props = defineProps({
 
 /* Empty configuration */
 const verbosityLevel = ref("all");
+const syslogFormat = ref("text");
 
 /* Form data */
 const webhookURL = ref(null)
 const syslogAddr = ref(null)
 const verbosityMultiselect = ref(null);
+const syslogFormatMultiselect = ref(null);
 const alertsSwitch = ref(false)
 const configChanged = ref(false)
 
@@ -125,6 +136,10 @@ async function loadConfiguration() {
 		if (configuration['syslog']['address']) {
 			syslogAddr.value.value = configuration['syslog']['address'];
 		}
+
+		if (configuration['syslog']['format']) {
+			syslogFormatMultiselect.value.select(configuration['syslog']['format']);
+		}
 	}
 
 	/* Update configChanged with timeout to handle async updates triggering change event */
@@ -143,7 +158,8 @@ function computeConfiguration() {
 	}
 
 	form_configuration['syslog'] = {
-		address: syslogAddr.value.value
+		address: syslogAddr.value.value,
+		format: syslogFormat.value
 	}
 
 	return form_configuration;
