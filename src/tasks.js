@@ -62,6 +62,9 @@ export async function createTask(info) {
 /* List all task IDs */
 async function listTasks() {
 	const data = await redis('KEYS', 'nbox.tasks:*');
+	if (data.trim().length == 0) {
+		return [];
+	}
 	const lines = data.split(/\r?\n/);
 	let list = lines.map((line) => {
 		const [prefix, ...value_arr] = line.split(':');
