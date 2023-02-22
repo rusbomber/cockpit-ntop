@@ -51,6 +51,13 @@
 				<input type="text" class="form-control" :class="{ 'border border-danger': invalidFlowExportEndpoint }" ref="flowExportEndpoint" @change="onConfigChange()" />
 				<small class="form-text text-muted">Flow export endpoint (e.g. zmq://*:5556) to deliver flows to ntopng.</small>
 			</div>
+
+			<div class="form-group" v-show="mode != 'custom'">
+				<h5>Connect as Client</h5>
+				<Toggle v-model="probeModeSwitch" @change="onConfigChange()" />
+				<br />
+				<small class="form-text text-muted">Set probe mode to connect to ntopng instead of listening. Requires the collection mode in ntopng (e.g. zmq://*:5556c).</small>
+			</div>
 		</div>
 
 		<div class="form-group" v-show="mode != 'custom'">
@@ -188,6 +195,7 @@ const selectedNetFlowVersion = ref([]);
 const interfaceMultiselect = ref(null);
 const flowCollectionPort = ref(null)
 const flowExportSwitch = ref(false)
+const probeModeSwitch = ref(false)
 const flowExportEndpoint = ref(null)
 const collectorSwitch = ref(false)
 const collector = ref(null)
@@ -317,6 +325,9 @@ async function loadConfiguration() {
 						}
 					}
 					break;
+				case '--zmq-probe-mode':
+					probeModeSwitch.value = true;
+					break;
 				default:
 					appendAdvancedSettings(option.name, option.value);
 					break;
@@ -349,6 +360,11 @@ function computeConfiguration() {
 	if (props.mode != 'custom') {
 		if (flowExportSwitch.value && flowExportEndpoint.value.value) {
 			form_configuration.push({ name: '--ntopng', value: flowExportEndpoint.value.value });
+
+			if (probeModeSwitch.value) {
+				form_configuration.push({ name: '--zmq-probe-mode' });
+			}
+
 			const templateDefined = advanced_configuration.find(element => element.name == '-T');
 			if (!templateDefined) {
 				form_configuration.push({ name: '-T', value: '@NTOPNG@' });
