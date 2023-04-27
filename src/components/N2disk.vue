@@ -107,8 +107,12 @@ onBeforeMount(async () => {
 
 	if (stubMode()) {
 		instances.value.push({
-			name: 'SampleInterface',
-			label: 'SampleInterface'
+			name: '',
+			label: 'Default'
+		});
+		instances.value.push({
+			name: 'eno1',
+			label: 'eno1'
 		});
 	} else {
 		const names = await getConfigurationFileList(productName.value);
@@ -118,6 +122,10 @@ onBeforeMount(async () => {
 
 			if (name == '') {
 				label = "Default";
+			}
+
+			if (name.startsWith("ntopng-")) {
+				return; /* Skip instances controlled by ntopng */
 			}
 
 			instances.value.push({ 
