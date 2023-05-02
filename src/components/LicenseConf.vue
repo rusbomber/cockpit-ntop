@@ -124,8 +124,11 @@ async function readSystemInformation() {
 				appEdition.value = item.value;
 				break;
 			case 'License Type':
-			case 'License':
 				appLicense.value = item.value;
+				break;
+			case 'License':
+				if (!appLicense.value) /* Use 'License Type' if present */
+					appLicense.value = item.value;
 				break;
 			case 'Maintenance':
 				appMaintenance.value = item.value;
