@@ -54,7 +54,11 @@ async function get_task_info(id) {
 	const info = await redis('HGET', 'nbox.tasks:' + id, 'info');
 	if (info.length == 0)
 		return {};
-	return JSON.parse(atob(info));
+
+	//let json = atob(info);
+	let json = Buffer.from(info, 'base64').toString();
+
+	return JSON.parse(json);
 }
 
 async function dequeue_tasks() {
