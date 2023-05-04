@@ -21,7 +21,9 @@
 					<th>ID</th>
 					<th>Status</th>
 					<th>Creation Date</th>
-					<th>Info</th>
+					<th>From Date</th>
+					<th>To Date</th>
+					<th>Filter</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -173,6 +175,24 @@ const tasksTableColumns = ref([
 		},
 	},
 	{
+		data: 'from_time',
+		render: function (data, type) {
+			if (type === 'display') {
+				return moment.unix(data).format('DD/MM/YYYY HH:mm:ss');
+			}
+			return data;
+		},
+	},
+	{
+		data: 'to_time',
+		render: function (data, type) {
+			if (type === 'display') {
+				return moment.unix(data).format('DD/MM/YYYY HH:mm:ss');
+			}
+			return data;
+		},
+	},
+	{
 		data: 'info',
 	},
 	{
@@ -241,6 +261,8 @@ function taskInfoToTableData(id, status, info) {
 		id: id,
 		status: status,
 		creation: info.creation_time,
+		from_time: info.from_time,
+		to_time: info.to_time,
 		info: info.filter,
 		folder: info.folder,
 		actions: ""
@@ -408,28 +430,36 @@ onMounted(async () => {
 			{
 				id: "1",
 				status: "processed",
-				creation: 1634914145,
+				creation: 1634914155,
+				from_time: 1634914140,
+				to_time: 1634914145,
 				info: "BPF = \"ip host 192.168.1.195 and ip host 192.168.1.97 and port 443\"",
 				actions: ""
 			},
 			{
 				id: "2",
 				status: "completed",
-				creation: 1634914146,
+				creation: 1634914156,
+				from_time: 1634914141,
+				to_time: 1634914146,
 				info: "BPF = \"ip host 192.168.1.195 and ip host 192.168.1.97 and port 443\"",
 				actions: ""
 			},
 			{
 				id: "3",
 				status: "running",
-				creation: 1634914147,
+				creation: 1634914157,
+				from_time: 1634914142,
+				to_time: 1634914147,
 				info: "BPF = \"ip host 192.168.1.195\"",
 				actions: ""
 			},
 			{
 				id: "4",
 				status: "pending",
-				creation: 1634914148,
+				creation: 1634914158,
+				from_time: 1634914144,
+				to_time: 1634914148,
 				info: "BPF = \"ip host 192.168.1.1\"",
 				actions: ""
 			},
