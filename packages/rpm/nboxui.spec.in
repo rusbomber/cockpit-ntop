@@ -56,6 +56,7 @@ cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/nprobe/
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/n2disk/
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cento/
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/cluster/
+cp -rpf @SRC_ROOT@/cockpit-navigator/navigator $RPM_BUILD_ROOT/usr/share/cockpit/ 
 cp -r @SRC_ROOT@/dist/* $RPM_BUILD_ROOT/usr/share/cockpit/nbox-preferences/
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
@@ -106,6 +107,7 @@ esac
 /usr/share/cockpit/n2disk
 /usr/share/cockpit/cento
 /usr/share/cockpit/cluster
+/usr/share/cockpit/navigator
 /usr/share/cockpit/nbox-preferences
 /usr/lib/systemd/system/nbox-scheduler.service
 /usr/lib/systemd/system/nbox-rrd.service

@@ -34,6 +34,9 @@ dist-install:
 	mkdir /usr/share/cockpit/nbox-preferences
 	cp -r plugins/nbox-preferences/* /usr/share/cockpit/nbox-preferences/
 	cp -r dist/* /usr/share/cockpit/nbox-preferences/
+	# navigator
+	rm -rf /usr/share/cockpit/navigator
+	cp -rpf cockpit-navigator/navigator /usr/share/cockpit/
 	# branding
 	cp -r branding/* /usr/share/cockpit/branding/ubuntu/
 
