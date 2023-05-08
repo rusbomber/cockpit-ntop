@@ -318,8 +318,8 @@ watch([tasksTableData], (cur_value, old_value) => {
 					await setTaskStatus(id, 'processed');
 				}
 
-				//TODO redirect to the right 'folder'
-				window.open("/navigator", "_blank");
+				/* Redirect to the right folder in the file Navigator */
+				window.open("/navigator#" + folder, "_blank");
 			}
 		}
 	});
