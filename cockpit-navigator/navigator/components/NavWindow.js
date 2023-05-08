@@ -28,6 +28,17 @@ import { format_bytes, format_permissions } from "../functions.js";
 export class NavWindow {
 	constructor() {
 		this.item_display = "grid";
+
+		/* Override stored navigator-path with the path in the URL query */
+		/* Example: https://devele:9090/navigator#/storage/n2disk/eno1 */
+		const hash = window.location.hash;
+		if (hash) {
+			const path = hash.substring(1);
+			if (path) {
+				localStorage.setItem('navigator-path', path);
+			}
+		}
+
 		this.path_stack = (localStorage.getItem('navigator-path') ?? '/').split('/');
 		this.path_stack = this.path_stack.map((_, index) => new NavDir([...this.path_stack.slice(0, index + 1)].filter(part => part != ''), this));
 
