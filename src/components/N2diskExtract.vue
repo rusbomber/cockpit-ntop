@@ -301,7 +301,7 @@ watch([tasksTableData], (cur_value, old_value) => {
 	tasksTableData.value.forEach(function (task) {
 		const id = task.id;
 		const status = task.status;
-		const folder = task.info.folder;
+		const folder = task.folder;
 
 		/* On delete action */
 		let delete_link = document.getElementById("task_delete_" + id);
