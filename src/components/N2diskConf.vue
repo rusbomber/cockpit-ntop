@@ -7,6 +7,9 @@
 			<TSChart height="120px" name="Traffic Rate" :series="chart1Series" unit="bps"></TSChart>
 		</div>
 		<div class="col-sm">
+			<TSChart height="120px" name="Packet Loss" :series="chart3Series" unit="pps"></TSChart>
+		</div>
+		<div class="col-sm">
 			<TSChart height="120px" name="I/O Throughput" :series="chart2Series" unit="bps"></TSChart>
 		</div>
 	</div>
@@ -193,6 +196,7 @@ const interfacesList = ref([]);
 const chartsAvailable = ref(false);
 const chart1Series = ref([{ name: 'RXBytes', data: [] }])
 const chart2Series = ref([{ name: 'IOBytes', data: [] }])
+const chart3Series = ref([{ name: 'Drops', data: [] }])
 
 function formatPercentage(value) {
 	return Math.round(value) + "%";
@@ -516,6 +520,7 @@ async function updateCharts() {
 
 		chart1Series.value[0].data = data['receivedBytes'];
 		chart2Series.value[0].data = data['dumpedBytes'];
+		chart3Series.value[0].data = data['droppedPkts'];
 
 		chartsAvailable.value = true;
 	}
