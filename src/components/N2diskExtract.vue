@@ -172,7 +172,7 @@ const tasksTableColumns = ref([
 			if (type === 'display') {
 				let icon = getIcon(data);
 				let label = data.charAt(0).toUpperCase() + data.slice(1);
-				return icon + ' ' + label + getStatusMessage(data, row.output);
+				return icon + ' ' + label + ' ' + getStatusMessage(data, row.output);
 			}
 			return data;
 		},
