@@ -153,10 +153,22 @@ function getIcon(name) {
 
 function getStatusMessage(status, output) {
 	if (status == 'completed' || status == 'processed') {
-		if (output && output.num_dumped_pkts != null && output.num_dumped_files != null) {
+		if (output) {
 			const elem = document.getElementById("icon-info");
 			if (!elem) return '';
-			return '<span title="' + output.num_dumped_pkts + ' packets matched the filter, ' + output.num_dumped_files + ' files extracted">' + elem.innerHTML + '</span>';
+
+			let title = '';
+			if (output.error) {
+				title = output.error;
+			} else if (output.warning) {
+				title = output.warning;
+			} else if (output.num_dumped_pkts != null && output.num_dumped_files != null) {
+				title = output.num_dumped_pkts + ' packets matched the filter, ' + output.num_dumped_files + ' files extracted';
+			}
+			if (!title)
+				return '';
+
+			return '<span title="' + title + '">' + elem.innerHTML + '</span>';
 		}
 	}
 	return '';
