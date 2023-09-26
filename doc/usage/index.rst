@@ -36,3 +36,4 @@ A side menu is available to jump to the machine and ntop software configuration 
     licenses
     applications
     admin
+    notifications
