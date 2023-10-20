@@ -20,7 +20,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="nprobeSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': nprobeEnabled && !nprobeActive }" />
+			<Toggle v-model="nprobeSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': nprobeEnabled && !nprobeActive, 'toggle-yellow': nprobeSwitch && !nprobeEnabled && !nprobeActive }" />
 		</div>
 	</div>
 
@@ -92,8 +92,8 @@
 
 	<div class="card-footer">
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-			<button class="btn btn-danger" @click="onDeleteModal.show();">Delete Instance</button>
-			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!configChanged || !validationOk">Save Configuration</button>
+			<button class="btn btn-danger" @click="onDeleteModal.show();" :disabled="!isAdministrator">Delete Instance</button>
+			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!isAdministrator || !configChanged || !validationOk">Save Configuration</button>
 		</div>
 	</div>
 </div>
@@ -181,6 +181,8 @@ const serviceName = "nprobe";
 
 const customInterfaceLabel = "Add Custom Interface..";
 
+const isAdministrator = ref(false);
+
 /* Service status */
 const nprobeActive = ref(false);
 const nprobeEnabled = ref(false);
@@ -240,7 +242,6 @@ async function updateServiceSwitch() {
 	if (nprobeEnabled.value) {
 		nprobeSwitch.value = true;
 	}
-
 }
 
 /* Add setting to the advanced text area */
@@ -439,6 +440,15 @@ async function deleteConfiguration() {
 onBeforeMount(async () => {
 	let interface_names = []
 
+	if (stubMode()) {
+		isAdministrator.value = true;
+	} else {
+		let permission = cockpit.permission({ admin: true });
+		permission.addEventListener("changed", function() {
+			isAdministrator.value = permission.allowed ? true : false;
+		})
+	}
+
 	updateServiceSwitch();
 
 	/* Read interfaces */
@@ -456,6 +466,13 @@ onBeforeMount(async () => {
 
 /* On service switch event: toggle service status */
 function onServiceSwitchChange() {
+
+	if (!isAdministrator.value) {
+		toast.warning("User is not allowed to toggle services.");
+		nprobeSwitch.value = !nprobeSwitch.value;
+		return;
+	}
+
 	if (stubMode()) {
 		console.log("Switching " + serviceName + " " + nprobeSwitch.value);
 	} else {

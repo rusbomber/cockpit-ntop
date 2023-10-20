@@ -113,6 +113,11 @@ body {
   --toggle-border-on: #EC7063;
 }
 
+.toggle-yellow {
+  --toggle-bg-on: #FFCC66;
+  --toggle-border-on: #FFCC66;
+}
+
 #app {
   margin: 0 auto;
   font-weight: normal;
