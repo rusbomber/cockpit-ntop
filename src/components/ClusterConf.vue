@@ -19,7 +19,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="clusterSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': clusterEnabled && !clusterActive }" />
+			<Toggle v-model="clusterSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': clusterEnabled && !clusterActive, 'toggle-yellow': clusterSwitch && !clusterEnabled && !clusterActive } }" />
 		</div>
 	</div>
 

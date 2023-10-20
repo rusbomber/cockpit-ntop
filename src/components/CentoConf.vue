@@ -19,7 +19,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="centoSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': centoEnabled && !centoActive }" />
+			<Toggle v-model="centoSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': centoEnabled && !centoActive }, 'toggle-yellow': centoSwitch && !centoEnabled && !centoActive }" />
 		</div>
 	</div>
 

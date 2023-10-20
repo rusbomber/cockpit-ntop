@@ -10,7 +10,7 @@
 		</div>
 		<div class="service-switch">
 			<button class="btn btn-default" title="Open ntopng" @click="openNtopng()" :disabled="!(ntopngEnabled && ntopngActive)"><font-awesome-icon icon="fa-solid fa-desktop" /></button>
-			<Toggle v-model="ntopngSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': ntopngEnabled && !ntopngActive }" />
+			<Toggle v-model="ntopngSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': ntopngEnabled && !ntopngActive, 'toggle-yellow': ntopngSwitch && !ntopngEnabled && !ntopngActive } }" />
 		</div>
 	</div>
 

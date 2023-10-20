@@ -25,7 +25,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="n2diskSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': n2diskEnabled && !n2diskActive }" />
+			<Toggle v-model="n2diskSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': n2diskEnabled && !n2diskActive, 'toggle-yellow': n2diskSwitch && !n2diskEnabled && !n2diskActive } }" />
 		</div>
 	</div>
 
