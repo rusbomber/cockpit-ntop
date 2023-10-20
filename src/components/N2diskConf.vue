@@ -25,7 +25,7 @@
 			<h3>{{ label }} Instance</h3>
 		</div>
 		<div class="service-switch">
-			<Toggle v-model="n2diskSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': n2diskEnabled && !n2diskActive, 'toggle-yellow': n2diskSwitch && !n2diskEnabled && !n2diskActive } }" />
+			<Toggle v-model="n2diskSwitch" onLabel="On" offLabel="Off" @change="onServiceSwitchChange()" :class="{ 'toggle-red': n2diskEnabled && !n2diskActive, 'toggle-yellow': n2diskSwitch && !n2diskEnabled && !n2diskActive }" />
 		</div>
 	</div>
 
@@ -69,8 +69,8 @@
 
 	<div class="card-footer">
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-			<button class="btn btn-danger" @click="onDeleteModal.show();">Delete Instance</button>
-			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!configChanged || !validationOk">Save Configuration</button>
+			<button class="btn btn-danger" @click="onDeleteModal.show();" :disabled="!isAdministrator">Delete Instance</button>
+			<button class="btn btn-primary" @click="saveConfiguration()" :disabled="!isAdministrator || !configChanged || !validationOk">Save Configuration</button>
 		</div>
 	</div>
 </div>
@@ -154,6 +154,8 @@ const props = defineProps({
 const serviceName = "n2disk";
 
 const customInterfaceLabel = "Add Custom Interface..";
+
+const isAdministrator = ref(false);
 
 /* Service status */
 const n2diskActive = ref(false);
@@ -356,6 +358,15 @@ async function deleteConfiguration() {
 onBeforeMount(async () => {
 	let interface_names = []
 
+	if (stubMode()) {
+		isAdministrator.value = true;
+	} else {
+		let permission = cockpit.permission({ admin: true });
+		permission.addEventListener("changed", function() {
+			isAdministrator.value = permission.allowed ? true : false;
+		})
+	}
+
 	updateServiceSwitch();
 
 	/* Read interfaces */
@@ -373,6 +384,13 @@ onBeforeMount(async () => {
 
 /* On service switch event: toggle service status */
 function onServiceSwitchChange() {
+
+	if (!isAdministrator.value) {
+		toast.warning("User is not allowed to toggle services.");
+		n2diskSwitch.value = !n2diskSwitch.value;
+		return;
+	}
+
 	if (stubMode()) {
 		console.log("Switching " + serviceName + " " + n2diskSwitch.value);
 	} else {
