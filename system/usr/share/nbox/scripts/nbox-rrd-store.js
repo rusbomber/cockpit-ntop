@@ -15,7 +15,7 @@ async function get_running_services(application) {
 		console.log(cmd);
 	}
 	const output = await exec(cmd);
-	return output.stdout.trim().split(/\r?\n/);
+	return output.stdout.trim().split(/\r?\n/).filter((s) => s.length > 0);
 }
 
 async function get_service_pid(instance) {
@@ -38,7 +38,7 @@ async function get_service_stats(pid) {
 				const pair = info.split(/:(.*)/s);
 				return {
 					name: pair[0].trim(),
-					value: pair[1].trim()
+					value: pair[1] ? pair[1].trim() : "0"
 				} 
 			});
 		}
@@ -145,24 +145,32 @@ async function dump_cento_stats() {
 			console.log("Failure reading stats for " + application + " on " + instance  + " with PID = " + pid);
 		} else {
 			let stats = [];
+
+			stats['receivedPkts'] = 0;
+			stats['filteredPkts'] = 0;
+			stats['droppedPkts'] = 0;
+			stats['receivedBytes'] = 0;
+			stats['activeFlows'] = 0;
+			stats['exportedFlows'] = 0;
+
 			service_stats.forEach(function(item) {
 				if (debug) {
 					console.log(item.name + " => " + item.value);
 				}
 				switch (item.name) {
 					case 'Packets':
-						stats['receivedPkts'] = item.value;
-						stats['filteredPkts'] = item.value;
+						stats['receivedPkts'] += parseInt(item.value);
+						stats['filteredPkts'] += parseInt(item.value);
 					case 'Dropped':
-						stats['droppedPkts'] = item.value;
+						stats['droppedPkts'] += parseInt(item.value);
 						break;
 					case 'Bytes':
-						stats['receivedBytes'] = item.value; 
+						stats['receivedBytes'] += parseInt(item.value); 
 						break;
 					case 'Flows':
 						const flow_info = item.value.replaceAll("'", "").split(' ')[0].split('/');
-						stats['activeFlows'] = flow_info[0]; 
-						stats['exportedFlows'] = flow_info[1]; 
+						stats['activeFlows'] += parseInt(flow_info[0]); 
+						stats['exportedFlows'] += parseInt(flow_info[1]); 
 						break;
 				}
 			})
