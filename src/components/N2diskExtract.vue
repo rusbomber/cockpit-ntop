@@ -249,7 +249,7 @@ const initialTimeInterval = [
 /* Empty configuration */
 const fileSize = ref(64);
 const minFileSize = ref(64);
-const maxFileSize = ref(4096);
+const maxFileSize = ref(2048);
 const stepFileSize = ref(64);
 const selectedTimelines = ref([]);
 
@@ -330,21 +330,25 @@ watch([tasksTableData], (cur_value, old_value) => {
 
 		/* On delete action */
 		let delete_link = document.getElementById("task_delete_" + id);
-		delete_link.onclick = function () {
-			currentTaskID.value = id;
-			onDeleteModal.value.show();
+		if (delete_link) {
+			delete_link.onclick = function () {
+				currentTaskID.value = id;
+				onDeleteModal.value.show();
+			}
 		}
 
 		/* On folder open action */
 		if (task.status == 'completed' || task.status == 'processed') {
 			let folder_link = document.getElementById("task_folder_" + id);
-			folder_link.onclick = async function () {
-				if (status == 'completed') {
-					await setTaskStatus(id, 'processed');
-				}
+			if (folder_link) {
+				folder_link.onclick = async function () {
+					if (status == 'completed') {
+						await setTaskStatus(id, 'processed');
+					}
 
-				/* Redirect to the right folder in the file Navigator */
-				window.open("/navigator#" + folder, "_blank");
+					/* Redirect to the right folder in the file Navigator */
+					window.open("/navigator#" + folder, "_blank");
+				}
 			}
 		}
 	});
@@ -359,6 +363,8 @@ async function delTask() {
 
 /* Update the tasks table */
 async function updateTasks() {
+	if (stubMode()) return;
+
 	const tasks = await getAllTasks(); 
 
 	const tasks_data = tasks.map((task) => {
