@@ -28,6 +28,8 @@
 				</tr>
 			</thead>
 		</DataTable>
+	
+		<p class="text-secondary"><small>Extraction tasks are executed by the <strong>nbox-scheduler</strong> service.</small></p>
 	</div>
 </div>
 
